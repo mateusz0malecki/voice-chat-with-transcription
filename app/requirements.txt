@@ -1,0 +1,36 @@
+# api framework
+fastapi==0.79.0
+uvicorn==0.18.2
+PyYAML==6.0
+
+# audio
+MoviePy==1.0.3
+pysoundfile==0.9.0.post1
+librosa==0.9.2
+pandas==1.4.4
+pydub==0.25.1
+
+# db orm
+sqlalchemy==1.4.39
+sqlalchemy-utils==0.38.3
+psycopg2==2.9.3
+
+# sending email
+fastapi-mail==1.1.4
+httpx==0.23.0
+aioredis==2.0.1
+
+# migrations and docker workflow
+wait-for-it==2.2.1
+alembic==1.8.1
+
+# jwt
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.5
+
+# pydantic validation
+email-validator
+
+# loading .env
+python-dotenv==0.20.0
