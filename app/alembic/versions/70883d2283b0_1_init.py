@@ -48,6 +48,7 @@ def upgrade() -> None:
     op.create_table('transcription',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('transcription_text', sa.Text(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('recording_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['recording_id'], ['recording.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')

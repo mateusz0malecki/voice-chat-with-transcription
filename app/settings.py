@@ -25,6 +25,11 @@ class Settings(BaseSettings):
 
     root_path: str
     domain: str
+    recordings_path: str
+    transcriptions_path: str
+
+    storage_credentials_file: str
+    bucket_name: str
 
     class Config:
         env_file = ".env"

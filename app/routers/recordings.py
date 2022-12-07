@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends, UploadFile, HTTPException
+from fastapi import APIRouter, status, Depends, UploadFile, HTTPException, Response
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from pydantic import parse_obj_as
@@ -41,7 +41,7 @@ async def upload_new_recording(
         my_file.close()
 
     if file.filename.endswith(".wav"):
-        dir_ = f"data/recordings/"
+        dir_ = app_settings.recordings_path
         if not os.path.exists(dir_):
             os.mkdir(dir_)
         shutil.copyfile(temp_dir + filename, dir_ + filename)
@@ -52,13 +52,14 @@ async def upload_new_recording(
     os.remove(temp_dir + filename)
 
     new_recording = Recording(
+        filename=new_filename,
         duration=duration,
         url=app_settings.domain + app_settings.root_path + "/recording-file/" + new_filename
     )
     db.add(new_recording)
     db.commit()
     db.refresh(new_recording)
-    return {"info": f"file saved as '{new_filename}'"}
+    return {"info": f"File saved as '{new_filename}'"}
 
 
 @router.get(
@@ -67,7 +68,7 @@ async def upload_new_recording(
     dependencies=[Depends(get_current_user)]
 )
 async def get_recording_file(filename: str):
-    dir_ = f"data/recordings/"
+    dir_ = app_settings.recordings_path
     file_path = os.path.join(dir_, filename)
     if os.path.exists(file_path):
         return FileResponse(file_path, media_type="audio/wav")
@@ -98,7 +99,7 @@ async def get_recording_info(
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(get_current_user)]
 )
-async def read_all_users(
+async def get_all_recordings(
     db: Session = Depends(get_db),
     page: int = 1,
     page_size: int = 10
@@ -116,3 +117,33 @@ async def read_all_users(
         page_size
     )
     return response
+
+
+# @router.delete(
+#     "/recordings/{recording_id}",
+#     dependencies=[Depends(get_current_user)]
+# )
+# async def delete_recording(
+#         recording_id: int,
+#         db: Session = Depends(get_db),
+# ):
+#     recording_to_delete = Recording.get_recording_by_id(db, recording_id)
+#     if not recording_to_delete:
+#         raise RecordingNotFound(recording_id)
+#
+#     file_path = app_settings.recordings_path + recording_to_delete.filename
+#     try:
+#         os.remove(file_path)
+#     except Exception as e:
+#         print({"Error": e})
+#
+#     if recording_to_delete.transcription:
+#         transcription_file_path = app_settings.recordings_path + recording_to_delete.transcription.filename
+#         try:
+#             os.remove(transcription_file_path)
+#         except Exception as e:
+#             print({"Error": e})
+#
+#     db.delete(recording_to_delete)
+#     db.commit()
+#     return Response(status_code=status.HTTP_204_NO_CONTENT)

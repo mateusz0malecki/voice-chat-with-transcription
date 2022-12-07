@@ -5,6 +5,7 @@ from .helpers import BaseConfig, CustomPagination
 
 class Recording(BaseConfig):
     id: int
+    filename: str
     duration: float
     url: str
     created_at: Optional[datetime]

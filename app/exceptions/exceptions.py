@@ -24,3 +24,11 @@ class RecordingNotFound(HTTPException):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Recording with id '{recording_id}' not found."
         )
+
+
+class TranscriptionNotFound(HTTPException):
+    def __init__(self, transcription_id: int):
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Transcription with id '{transcription_id}' not found."
+        )
