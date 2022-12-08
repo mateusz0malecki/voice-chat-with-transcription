@@ -101,24 +101,24 @@ async def create_new_transcription(
     return {"info": f"File saved as '{transcription_filename}'"}
 
 
-# @router.delete(
-#     "/transcriptions/{transcription_id}",
-#     dependencies=[Depends(get_current_user)]
-# )
-# async def delete_transcription(
-#         transcription_id: int,
-#         db: Session = Depends(get_db),
-# ):
-#     transcription_to_delete = Transcription.get_transcription_by_id(db, transcription_id)
-#     if not transcription_to_delete:
-#         raise TranscriptionNotFound(transcription_id)
-#
-#     file_path = app_settings.recordings_path + transcription_to_delete.filename
-#     try:
-#         os.remove(file_path)
-#     except Exception as e:
-#         print({"Error": e})
-#
-#     db.delete(transcription_to_delete)
-#     db.commit()
-#     return Response(status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/transcriptions/{transcription_id}",
+    dependencies=[Depends(get_current_user)]
+)
+async def delete_transcription(
+        transcription_id: int,
+        db: Session = Depends(get_db),
+):
+    transcription_to_delete = Transcription.get_transcription_by_id(db, transcription_id)
+    if not transcription_to_delete:
+        raise TranscriptionNotFound(transcription_id)
+
+    file_path = app_settings.recordings_path + transcription_to_delete.filename
+    try:
+        os.remove(file_path)
+    except Exception as e:
+        print({"Error": e})
+
+    db.delete(transcription_to_delete)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

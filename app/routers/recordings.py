@@ -119,31 +119,31 @@ async def get_all_recordings(
     return response
 
 
-# @router.delete(
-#     "/recordings/{recording_id}",
-#     dependencies=[Depends(get_current_user)]
-# )
-# async def delete_recording(
-#         recording_id: int,
-#         db: Session = Depends(get_db),
-# ):
-#     recording_to_delete = Recording.get_recording_by_id(db, recording_id)
-#     if not recording_to_delete:
-#         raise RecordingNotFound(recording_id)
-#
-#     file_path = app_settings.recordings_path + recording_to_delete.filename
-#     try:
-#         os.remove(file_path)
-#     except Exception as e:
-#         print({"Error": e})
-#
-#     if recording_to_delete.transcription:
-#         transcription_file_path = app_settings.recordings_path + recording_to_delete.transcription.filename
-#         try:
-#             os.remove(transcription_file_path)
-#         except Exception as e:
-#             print({"Error": e})
-#
-#     db.delete(recording_to_delete)
-#     db.commit()
-#     return Response(status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/recordings/{recording_id}",
+    dependencies=[Depends(get_current_user)]
+)
+async def delete_recording(
+        recording_id: int,
+        db: Session = Depends(get_db),
+):
+    recording_to_delete = Recording.get_recording_by_id(db, recording_id)
+    if not recording_to_delete:
+        raise RecordingNotFound(recording_id)
+
+    file_path = app_settings.recordings_path + recording_to_delete.filename
+    try:
+        os.remove(file_path)
+    except Exception as e:
+        print({"Error": e})
+
+    if recording_to_delete.transcription:
+        transcription_file_path = app_settings.recordings_path + recording_to_delete.filename.split('.')[0] + '.txt'
+        try:
+            os.remove(transcription_file_path)
+        except Exception as e:
+            print({"Error": e})
+
+    db.delete(recording_to_delete)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
