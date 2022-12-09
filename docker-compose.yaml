@@ -35,6 +35,16 @@ services:
     logging:
       driver: none
 
+  signaling_server:
+    container_name: signaling_server
+    build: ./signaling_server
+    tty: True
+    command: bash -c "python server.py"
+    volumes:
+      - ./signaling_server:/signaling_server
+    ports:
+      - "9000:9000"
+
 volumes:
   db_data:
   pgadmin_data:
