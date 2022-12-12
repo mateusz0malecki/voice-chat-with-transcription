@@ -9,8 +9,7 @@ from schemas import transcription_schemas
 from auth.jwt_helper import get_current_user
 from exceptions.exceptions import TranscriptionNotFound, RecordingNotFound
 from settings import get_settings
-from utils.storage_client import get_client, StorageClient
-from utils.transcript_gcp import transcript_big_bucket_file_gcp, transcript_small_local_file_gcp
+from celery_worker.tasks import transcript
 
 app_settings = get_settings()
 router = APIRouter(prefix=f"{app_settings.root_path}", tags=["Transcriptions"])
@@ -65,40 +64,15 @@ async def get_all_transcriptions(
 async def create_new_transcription(
     recording_id: int,
     db: Session = Depends(get_db),
-    storage_client: StorageClient = Depends(get_client)
 ):
     recording = Recording.get_recording_by_id(db, recording_id)
     if not recording:
         raise RecordingNotFound(recording_id)
 
-    recording_filepath = app_settings.recordings_path + recording.filename
-
-    if recording.duration < 60 and os.path.getsize(recording_filepath) < 10000000:
-        results = transcript_small_local_file_gcp(recording_filepath)
-    else:
-        storage_client.upload(recording.filename, recording_filepath)
-        blob_uri = storage_client.get_blob_uri(recording.filename)
-        results = transcript_big_bucket_file_gcp(blob_uri)
-
-    results_text = ""
-    for result in results:
-        results_text += f"- {str(result.alternatives[0].transcript)}\n"
+    transcript.delay(recording_id=recording_id)
 
     transcription_filename = f"{recording.filename.split('.')[0]}.txt"
-    transcription = Transcription(
-        filename=transcription_filename,
-        transcription_text=results_text,
-        recording_id=recording_id
-    )
-    db.add(transcription)
-    db.commit()
-    db.refresh(transcription)
-
-    if not os.path.exists(app_settings.transcriptions_path):
-        os.mkdir(app_settings.transcriptions_path)
-    with open(app_settings.transcriptions_path + transcription_filename, 'w') as file:
-        file.write(results_text)
-    return {"info": f"File saved as '{transcription_filename}'"}
+    return {"info": f"File will be saved shortly as '{transcription_filename}'"}
 
 
 @router.delete(
