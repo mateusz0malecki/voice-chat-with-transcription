@@ -1,6 +1,6 @@
 import os
 from flask import Flask, request
-from flask_socketio import SocketIO, emit, join_room
+from flask_socketio import SocketIO, emit, join_room, leave_room
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -26,6 +26,15 @@ def transfer_data(message):
     data = message.get('data')
     print(f'DataEvent: {username} has sent the data:\n {data}\n')
     emit('data', data, to=room, skip_sid=request.sid)
+
+
+@socketio.on('leave')
+def leave(message):
+    username = message.get('username')
+    room = message.get('room')
+    leave_room(room)
+    print(f'RoomEvent: {username} has left the room {room}\n')
+    emit('leave', {username: username}, to=room, skip_sid=request.sid)
 
 
 @socketio.on_error_default
