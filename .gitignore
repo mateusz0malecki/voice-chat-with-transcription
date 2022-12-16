@@ -1,5 +1,6 @@
 app/*.json
-app-gcp-run/*.json
+signaling_server/*.json
+TESTS_TRANSCRIPT/
 
 labels.csv
 data/
