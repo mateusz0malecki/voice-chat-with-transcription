@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends, UploadFile, HTTPException, Response
+from fastapi import APIRouter, status, Depends, UploadFile, HTTPException, Response, File, Form
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from pydantic import parse_obj_as
@@ -11,7 +11,7 @@ from secrets import token_urlsafe
 
 from db.database import get_db
 from models.recording import Recording
-from utils.convert import convert_to_wav_and_save_file
+from utils.convert import convert_to_wav_and_save_file, convert_and_save_file
 from schemas import recording_schemas
 from auth.jwt_helper import get_current_user
 from settings import get_settings
@@ -22,11 +22,37 @@ router = APIRouter(prefix=f"{app_settings.root_path}", tags=["Recordings"])
 
 
 @router.post(
-    "/recordings",
+    "/recording",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(get_current_user)]
+)
+async def upload_recorded_audio_bytes(
+        file: bytes = File(),
+        browser: str = Form(),
+        db: Session = Depends(get_db)
+):
+    if not os.path.exists("data/temp"):
+        os.mkdir("data/temp")
+
+    new_filename, location, duration = convert_and_save_file(browser, file)
+
+    new_recording = Recording(
+        filename=new_filename,
+        duration=duration,
+        url=app_settings.domain + app_settings.root_path + "/recording-file/" + new_filename
+    )
+    db.add(new_recording)
+    db.commit()
+    db.refresh(new_recording)
+    return {"info": f"file saved at '{location}'"}
+
+
+@router.post(
+    "/recordings-file",
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(get_current_user)]
 )
-async def upload_new_recording(
+async def upload_new_recording_file(
         file: UploadFile,
         db: Session = Depends(get_db),
 ):
@@ -45,21 +71,20 @@ async def upload_new_recording(
         if not os.path.exists(dir_):
             os.mkdir(dir_)
         shutil.copyfile(temp_dir + filename, dir_ + filename)
-        new_filename = filename
-        duration = get_duration(filename=temp_dir+filename)
+        duration = get_duration(filename=temp_dir + filename)
     else:
-        new_filename, duration = convert_to_wav_and_save_file(temp_dir, filename)
+        filename, duration = convert_to_wav_and_save_file(temp_dir, filename)
     os.remove(temp_dir + filename)
 
     new_recording = Recording(
-        filename=new_filename,
+        filename=filename,
         duration=duration,
-        url=app_settings.domain + app_settings.root_path + "/recording-file/" + new_filename
+        url=app_settings.domain + app_settings.root_path + "/recording-file/" + filename
     )
     db.add(new_recording)
     db.commit()
     db.refresh(new_recording)
-    return {"info": f"File saved as '{new_filename}'"}
+    return {"info": f"File saved as '{filename}'"}
 
 
 @router.get(
@@ -100,9 +125,9 @@ async def get_recording_info(
     dependencies=[Depends(get_current_user)]
 )
 async def get_all_recordings(
-    db: Session = Depends(get_db),
-    page: int = 1,
-    page_size: int = 10
+        db: Session = Depends(get_db),
+        page: int = 1,
+        page_size: int = 10
 ):
     recordings = Recording.get_all_recordings(db)
     first = (page - 1) * page_size

@@ -41,8 +41,9 @@ def leave(message):
 @socketio.on('startGoogleCloudStream')
 async def start_google_stream(message):
     config = message.get('config')
+    room = message.get('room')
     print(f'Starting streaming audio data from client {request.sid}')
-    await GoogleSpeechWrapper.start_recognition_stream(socketio, request.sid, config)
+    await GoogleSpeechWrapper.start_recognition_stream(socketio, request.sid, room, config)
 
 
 @socketio.on('binaryAudioData')
