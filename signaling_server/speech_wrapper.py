@@ -50,11 +50,11 @@ class ClientData:
                     break
             yield b"".join(data)
 
-    async def send_client_data(self, data, room, is_final: bool):
-        await self._conn.emit('speechData', {'data': data, 'isFinal': is_final}, to=room)
+    async def send_client_data(self, data, is_final: bool):
+        await self._conn.emit('speechData', {'data': data, 'isFinal': is_final})
 
 
-async def listen_print_loop(responses, room, client: ClientData):
+async def listen_print_loop(responses, client: ClientData):
     """
     Iterates through server responses and sends them back to client.
     The responses passed is a generator that will block until a response is provided by the server.
@@ -77,14 +77,14 @@ async def listen_print_loop(responses, room, client: ClientData):
 
             if client and interim_flush_counter % 3 == 0:
                 interim_flush_counter = 0
-                await client.send_client_data(transcript + overwrite_chars + "\r", room, False)
+                await client.send_client_data(transcript + overwrite_chars + "\r", False)
             num_chars_printed = len(transcript)
         else:
             text = transcript + overwrite_chars
             print(text)
 
             if client:
-                await client.send_client_data(text, room, True)
+                await client.send_client_data(text, True)
             num_chars_printed = 0
 
 
@@ -92,7 +92,7 @@ class GoogleSpeechWrapper:
     encoding_map = {'LINEAR16': speech.RecognitionConfig.AudioEncoding.LINEAR16}
 
     @staticmethod
-    async def start_listen(client_id: str, room: str):
+    async def start_listen(client_id: str):
         client = clients[client_id]
         speech_client = speech.SpeechClient.from_service_account_json(GOOGLE_SERVICE_JSON_FILE)
         config = speech.RecognitionConfig(
@@ -108,15 +108,15 @@ class GoogleSpeechWrapper:
         audio_generator = client.generator()
         requests = (speech.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
         responses = speech_client.streaming_recognize(streaming_config, requests)
-        await listen_print_loop(responses, room, client)
+        await listen_print_loop(responses, client)
 
     @staticmethod
-    async def start_recognition_stream(sio, client_id: str, room: str, config: Dict):
+    async def start_recognition_stream(sio, client_id: str, config: Dict):
         if client_id not in clients:
             clients[client_id] = ClientData(
                 threading.Thread(
                     target=asyncio.run,
-                    args=(GoogleSpeechWrapper.start_listen(client_id, room),)
+                    args=(GoogleSpeechWrapper.start_listen(client_id),)
                 ),
                 sio,
                 config
