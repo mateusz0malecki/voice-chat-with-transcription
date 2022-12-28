@@ -29,9 +29,7 @@ class SQLAlchemyTask(Task):
 
 
 @app.task(name="transcript", base=SQLAlchemyTask)
-def transcript(
-        recording_id: int
-):
+def transcript(recording_id: int):
     recording = Recording.get_recording_by_id(db_session, recording_id)
     recording_filepath = app_settings.recordings_path + recording.filename
 
