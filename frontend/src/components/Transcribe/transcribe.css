@@ -1,0 +1,26 @@
+.section {
+    display: 'flex';
+    flex: '1';
+    margin: '100px 0px 100px 0px';
+    align-items: 'center';
+    text-align: 'center';
+    flex-direction: 'column';
+}
+
+.section__header {
+    margin-bottom: '20px';
+}
+
+.section__buttons {
+    margin-bottom: '40px';
+}
+
+.section__transcription {
+    max-width: '800px';
+    display: 'flex';
+}
+
+.section__transcription--output {
+    margin-left: '8px';
+    color:'#ef395a';
+}
