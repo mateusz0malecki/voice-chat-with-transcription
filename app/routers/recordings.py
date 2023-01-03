@@ -79,7 +79,7 @@ async def upload_new_recording_file(
     new_recording = Recording(
         filename=filename,
         duration=duration,
-        url=app_settings.domain + app_settings.root_path + "/recording-file/" + filename
+        url=app_settings.domain + app_settings.root_path + "/recordings/file/" + filename
     )
     db.add(new_recording)
     db.commit()
@@ -88,7 +88,7 @@ async def upload_new_recording_file(
 
 
 @router.get(
-    "/recording-file/{filename}",
+    "/recordings/file/{filename}",
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(get_current_user)]
 )
@@ -96,7 +96,7 @@ async def get_recording_file(filename: str):
     dir_ = app_settings.recordings_path
     file_path = os.path.join(dir_, filename)
     if os.path.exists(file_path):
-        return FileResponse(file_path, media_type="audio/wav")
+        return FileResponse(file_path, media_type="audio/wav", filename=filename)
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail="File not found."

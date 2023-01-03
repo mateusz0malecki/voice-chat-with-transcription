@@ -1,5 +1,6 @@
 import os
-from fastapi import APIRouter, status, Depends, Response
+from fastapi import APIRouter, status, Depends, Response, HTTPException
+from fastapi.responses import FileResponse
 from db.database import get_db
 from sqlalchemy.orm import Session
 from pydantic import parse_obj_as
@@ -13,6 +14,22 @@ from celery_worker.tasks import transcript
 
 app_settings = get_settings()
 router = APIRouter(prefix=f"{app_settings.root_path}", tags=["Transcriptions"])
+
+
+@router.get(
+    "/transcriptions/file/{filename}",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(get_current_user)]
+)
+async def get_transcription_file(filename: str):
+    dir_ = app_settings.transcriptions_path
+    file_path = os.path.join(dir_, filename)
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="text/html", filename=filename)
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="File not found."
+    )
 
 
 @router.get(
@@ -44,7 +61,7 @@ async def get_all_transcriptions(
     transcriptions = Transcription.get_all_transcriptions(db)
     first = (page - 1) * page_size
     last = first + page_size
-    transcriptions_model = parse_obj_as(list[transcription_schemas.TranscriptionMini], transcriptions)
+    transcriptions_model = parse_obj_as(list[transcription_schemas.Transcription], transcriptions)
     response = transcription_schemas.TranscriptionPagination(
         transcriptions_model,
         "/api/v1/recordings",

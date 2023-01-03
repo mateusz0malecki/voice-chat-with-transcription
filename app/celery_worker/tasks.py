@@ -48,7 +48,7 @@ def transcript(recording_id: int):
     transcription_filename = f"{recording.filename.split('.')[0]}.txt"
     transcription = Transcription(
         filename=transcription_filename,
-        transcription_text=results_text,
+        url=app_settings.domain + app_settings.root_path + "/transcriptions/file/" + transcription_filename,
         recording_id=recording_id
     )
     db_session.add(transcription)
