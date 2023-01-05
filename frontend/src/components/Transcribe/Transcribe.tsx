@@ -8,7 +8,7 @@ const Transribe = () => {
   const [interimTranscribedData, setInterimTranscribedData] = React.useState('');
   const [isRecording, setIsRecording] = React.useState(false);
 
-  const [ initRecording, closeAll, stopRecording ] = useTranscribe()
+  const [ initRecording, stopRecording ] = useTranscribe();
 
   // console.log('a' , transcribedData);
   // console.log('b', interimTranscribedData)

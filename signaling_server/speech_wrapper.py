@@ -51,6 +51,7 @@ class ClientData:
             yield b"".join(data)
 
     async def send_client_data(self, data, is_final: bool):
+        print('data', data)
         await self._conn.emit('speechData', {'data': data, 'isFinal': is_final})
 
 
@@ -107,7 +108,10 @@ class GoogleSpeechWrapper:
         )
         audio_generator = client.generator()
         requests = (speech.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
+        print('AAA')
         responses = speech_client.streaming_recognize(streaming_config, requests)
+        print('resp' , responses)
+        print('bbb')
         await listen_print_loop(responses, client)
 
     @staticmethod

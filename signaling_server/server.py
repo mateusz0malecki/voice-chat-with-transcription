@@ -1,67 +1,51 @@
-import os
-from flask import Flask, request
-from flask_socketio import SocketIO, emit, join_room, leave_room
-from dotenv import load_dotenv
+import socketio
+from aiohttp import web
+
 from speech_wrapper import GoogleSpeechWrapper
 
-load_dotenv()
+app = web.Application()
+sio = socketio.AsyncServer(cors_allowed_origins='*')
 
-app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY")
-socketio = SocketIO(app, cors_allowed_origins="*")
+sio.attach(app)
 
 
-@socketio.on('join')
-def join(message):
-    username = message.get('username')
-    room = message.get('room')
-    join_room(room)
+@sio.on('join')
+def join(sid, username, room):
+    sio.enter_room(sid, room)
     print(f'RoomEvent: {username} has joined the room {room}\n')
-    emit('ready', {username: username}, to=room, skip_sid=request.sid)
+    sio.emit('ready', {username: username}, to=room, skip_sid=sid)
 
 
-@socketio.on('data')
-def transfer_data(message):
-    username = message.get('username')
-    room = message.get('room')
-    data = message.get('data')
+@sio.on('data')
+def transfer_data(sid, username, room, data):
     print(f'DataEvent: {username} has sent the data:\n {data}\n')
-    emit('data', data, to=room, skip_sid=request.sid)
+    sio.emit('data', data, to=room, skip_sid=sid)
 
 
-@socketio.on('leave')
-def leave(message):
-    username = message.get('username')
-    room = message.get('room')
-    leave_room(room)
+@sio.on('leave')
+def leave(sid, username, room):
+    sio.leave_room(sid, room)
     print(f'RoomEvent: {username} has left the room {room}\n')
-    emit('leave', {username: username}, to=room, skip_sid=request.sid)
+    sio.emit('leave', {username: username}, to=room, skip_sid=sid)
 
 
-@socketio.on('startGoogleCloudStream')
-async def start_google_stream(message):
-    config = message.get('config')
-    print(f'Starting streaming audio data from client {request.sid}')
-    await GoogleSpeechWrapper.start_recognition_stream(socketio, request.sid, config)
+@sio.on('startGoogleCloudStream')
+async def start_google_stream(sid, config):
+    print(f'Starting streaming audio data from client {sid}')
+    await GoogleSpeechWrapper.start_recognition_stream(sio, sid, config)
 
 
-@socketio.on('binaryAudioData')
-async def receive_binary_audio_data(message):
-    data = message.get('data')
-    GoogleSpeechWrapper.receive_data(request.sid, data)
+@sio.on('binaryAudioData')
+async def receive_binary_audio_data(sid, message):
+    # print('mes' , message, sid)
+    GoogleSpeechWrapper.receive_data(sid, message)
 
 
-@socketio.on('endGoogleCloudStream')
-async def close_google_stream():
-    print(f'Closing streaming data from client {request.sid}')
-    await GoogleSpeechWrapper.stop_recognition_stream(request.sid)
-
-
-@socketio.on_error_default
-def default_error_handler(e):
-    print(f"Error: {e}")
-    socketio.stop()
+@sio.on('endGoogleCloudStream')
+async def close_google_stream(sid):
+    print(f'Closing streaming data from client {sid}')
+    await GoogleSpeechWrapper.stop_recognition_stream(sid)
 
 
 if __name__ == '__main__':
-    socketio.run(app, host="0.0.0.0", port=9000)
+    web.run_app(app, host="0.0.0.0", port=9000)
