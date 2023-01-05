@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.10
 
 RUN apt-get -y update
 RUN apt-get install -y libsndfile1 ffmpeg

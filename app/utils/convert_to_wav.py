@@ -10,6 +10,9 @@ from secrets import token_urlsafe
 
 
 def convert_and_save_file(browser: str, file: bytes):
+    """
+    Converts and saves given audio file in bytes to WAV audio extension.
+    """
     dir_ = f"data/recordings/"
     if not os.path.exists(dir_):
         os.mkdir(dir_)
@@ -43,6 +46,9 @@ def convert_and_save_file(browser: str, file: bytes):
 
 
 def convert_to_wav_and_save_file(filepath: str, filename: str):
+    """
+    Converts audio file to WAV extension.
+    """
     extension_list = ("mp4", "mp3", "m4a")
     dir_ = f"data/recordings/"
     if not os.path.exists(dir_):

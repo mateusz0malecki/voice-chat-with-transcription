@@ -2,16 +2,21 @@ import asyncio
 import queue
 import sys
 import threading
+import os
 from typing import Dict
 
 from google.cloud import speech
 
-from settings import GOOGLE_SERVICE_JSON_FILE
+GOOGLE_SERVICE_JSON_FILE = os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'scrapper-system-stt-sa.json'
 
 clients = {}
 
 
 class ClientData:
+    """
+    Stores socket client data.
+    Creates thread for storing audio chunks in queue to later on generate them into transcription stream.
+    """
     def __init__(self, transcribe_thread, conn, config: Dict):
         self._buff = queue.Queue()
         self._thread = transcribe_thread
@@ -89,6 +94,9 @@ async def listen_print_loop(responses, client: ClientData):
 
 
 class GoogleSpeechWrapper:
+    """
+    Handles audio stream real-time transcription via Google Cloud Speech-to-text.
+    """
     encoding_map = {'LINEAR16': speech.RecognitionConfig.AudioEncoding.LINEAR16}
 
     @staticmethod

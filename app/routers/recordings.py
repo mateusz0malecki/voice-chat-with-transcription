@@ -11,7 +11,7 @@ from secrets import token_urlsafe
 
 from db.database import get_db
 from models.recording import Recording
-from utils.convert import convert_to_wav_and_save_file, convert_and_save_file
+from utils.convert_to_wav import convert_to_wav_and_save_file, convert_and_save_file
 from schemas import recording_schemas
 from auth.jwt_helper import get_current_user
 from settings import get_settings

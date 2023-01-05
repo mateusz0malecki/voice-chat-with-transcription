@@ -1,12 +1,5 @@
-import socketio
-from aiohttp import web
-
-from speech_wrapper import GoogleSpeechWrapper
-
-app = web.Application()
-sio = socketio.AsyncServer(cors_allowed_origins='*')
-
-sio.attach(app)
+from main import socket_manager as sio
+from utils.cloud_transcript_stream import GoogleSpeechWrapper
 
 
 @sio.on('join')
@@ -44,7 +37,3 @@ async def receive_binary_audio_data(sid, message):
 async def close_google_stream(sid):
     print(f'Closing streaming data from client {sid}')
     await GoogleSpeechWrapper.stop_recognition_stream(sid)
-
-
-if __name__ == '__main__':
-    web.run_app(app, host="0.0.0.0", port=9000)
