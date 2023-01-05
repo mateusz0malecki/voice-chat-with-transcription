@@ -1,6 +1,7 @@
 app/*.json
 signaling_server/*.json
 TESTS_TRANSCRIPT/
+frontend/package-lock.json
 
 labels.csv
 data/

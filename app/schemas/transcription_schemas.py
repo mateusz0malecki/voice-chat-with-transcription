@@ -1,19 +1,16 @@
+from typing import Optional
+from datetime import datetime
 from .recording_schemas import Recording
 from .helpers import BaseConfig, CustomPagination
-
-
-class TranscriptionMini(BaseConfig):
-    id: int
-    filename: str
-    recording: Recording
 
 
 class Transcription(BaseConfig):
     id: int
     filename: str
-    transcription_text: str
+    url: str
+    created_at: Optional[datetime]
     recording: Recording
 
 
 class TranscriptionPagination(CustomPagination):
-    records: list[TranscriptionMini] = []
+    records: list[Transcription] = []

@@ -7,8 +7,8 @@ from .celery import app
 from db.database import db_session
 from settings import get_settings
 from models.transcription import Transcription, Recording
-from utils.storage_client import get_client
-from utils.transcript_gcp import transcript_big_bucket_file_gcp, transcript_small_local_file_gcp
+from utils.cloud_storage_client import get_client
+from utils.cloud_transcript_file import transcript_big_bucket_file_gcp, transcript_small_local_file_gcp
 from utils.autocorrect_nlp import autocorrect_with_punctuation
 
 logging.getLogger(__name__)
@@ -30,6 +30,10 @@ class SQLAlchemyTask(Task):
 
 @app.task(name="transcript", base=SQLAlchemyTask)
 def transcript(recording_id: int):
+    """
+    Creates transcription for chosen recording via Google Cloud Speech-to-text.
+    Saves transcription to txt file and stores path and whole info in db.
+    """
     recording = Recording.get_recording_by_id(db_session, recording_id)
     recording_filepath = app_settings.recordings_path + recording.filename
 
@@ -48,7 +52,7 @@ def transcript(recording_id: int):
     transcription_filename = f"{recording.filename.split('.')[0]}.txt"
     transcription = Transcription(
         filename=transcription_filename,
-        transcription_text=results_text,
+        url=app_settings.domain + app_settings.root_path + "/transcriptions/file/" + transcription_filename,
         recording_id=recording_id
     )
     db_session.add(transcription)

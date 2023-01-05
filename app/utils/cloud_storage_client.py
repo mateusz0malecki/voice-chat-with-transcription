@@ -11,6 +11,8 @@ BUCKET_NAME = app_settings.bucket_name
 class StorageClient:
     """
     Class creates a client that connects to Cloud Storage Bucket and uploads new files.
+    :param: credentials_file: json key file to Google Cloud service account with Cloud Storage permissions
+    :param: bucket_name: name of bucket that you want to place file in
     """
     def __init__(self, credentials_file, bucket_name):
         self._credentials_file = credentials_file
