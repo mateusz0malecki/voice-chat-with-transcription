@@ -37,7 +37,6 @@ async def start_google_stream(sid, config):
 
 @sio.on('binaryAudioData')
 async def receive_binary_audio_data(sid, message):
-    # print('mes' , message, sid)
     GoogleSpeechWrapper.receive_data(sid, message)
 
 

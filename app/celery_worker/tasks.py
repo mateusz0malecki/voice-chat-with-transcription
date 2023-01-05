@@ -9,6 +9,7 @@ from settings import get_settings
 from models.transcription import Transcription, Recording
 from utils.storage_client import get_client
 from utils.transcript_gcp import transcript_big_bucket_file_gcp, transcript_small_local_file_gcp
+from utils.autocorrect_nlp import autocorrect_with_punctuation
 
 logging.getLogger(__name__)
 app_settings = get_settings()
@@ -28,9 +29,7 @@ class SQLAlchemyTask(Task):
 
 
 @app.task(name="transcript", base=SQLAlchemyTask)
-def transcript(
-        recording_id: int
-):
+def transcript(recording_id: int):
     recording = Recording.get_recording_by_id(db_session, recording_id)
     recording_filepath = app_settings.recordings_path + recording.filename
 
@@ -44,7 +43,7 @@ def transcript(
 
     results_text = ""
     for result in results:
-        results_text += f"- {str(result.alternatives[0].transcript)}\n"
+        results_text += f"- {autocorrect_with_punctuation(str(result.alternatives[0].transcript))}\n"
 
     transcription_filename = f"{recording.filename.split('.')[0]}.txt"
     transcription = Transcription(

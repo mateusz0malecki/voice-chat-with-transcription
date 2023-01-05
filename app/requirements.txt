@@ -44,3 +44,7 @@ google-cloud-speech==2.16.2
 # asynchronous jobs
 celery==5.2.7
 flower==1.2.0
+
+#nlp
+autocorrect==2.6.1
+deepmultilingualpunctuation==1.0.1

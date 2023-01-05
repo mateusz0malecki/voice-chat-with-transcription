@@ -15,7 +15,7 @@ services:
   app:
     container_name: app
     build: ./app
-    command: bash -c "wait-for-it --service db:5432 && alembic upgrade head && python run.py"
+    command: bash -c "wait-for-it --service db:5432 --timeout 30 && alembic upgrade head && python run.py"
     tty: True
     volumes:
       - ./app:/app
@@ -54,7 +54,7 @@ services:
     build: ./app
     volumes:
       - ./app:/app
-    command: bash -c "wait-for-it --service app:8000 && celery -A celery_worker worker --loglevel=info -f celery.log"
+    command: bash -c "wait-for-it --service app:8000 --timeout 30 && celery -A celery_worker worker --loglevel=info -f celery.log"
     environment:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL-amqp://guest:guest@rabbitmqhost:5672//}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND-db+postgresql+psycopg2://postgres:password@db/speech-to-text}
