@@ -1,5 +1,5 @@
 app/*.json
-signaling_server/*.json
+socket_server/*.json
 TESTS_TRANSCRIPT/
 frontend/package-lock.json
 

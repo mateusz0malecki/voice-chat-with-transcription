@@ -11,6 +11,8 @@ services:
       POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
+    logging:
+      driver: none
 
   app:
     container_name: app
@@ -58,6 +60,8 @@ services:
     environment:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL-amqp://guest:guest@rabbitmqhost:5672//}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND-db+postgresql+psycopg2://postgres:password@db/speech-to-text}
+    logging:
+      driver: none
 
   flower:
     container_name: flower
@@ -68,6 +72,18 @@ services:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL-amqp://guest:guest@rabbitmqhost:5672//}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND-db+postgresql+psycopg2://postgres:password@db/speech-to-text}
       - FLOWER_PORT=5566
+    logging:
+      driver: none
+
+  socket_server:
+    container_name: socket_server
+    build: ./socket_server
+    tty: True
+    command: bash -c "python server.py"
+    volumes:
+      - ./socket_server:/socket_server
+    ports:
+      - "9000:9000"
 
 volumes:
   db_data:

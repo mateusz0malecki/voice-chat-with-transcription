@@ -1,7 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi_socketio import SocketManager
 
 from routers import transcriptions, auth, recordings, users
 from settings import get_settings
@@ -22,14 +21,6 @@ app.include_router(transcriptions.router)
 app.include_router(auth.router)
 app.include_router(recordings.router)
 app.include_router(users.router)
-
-# Socket server
-socket_manager = SocketManager(
-    app=app,
-    mount_location='',
-    cors_allowed_origins=[],
-    async_mode="asgi"
-)
 
 # CORS middleware
 origins = [

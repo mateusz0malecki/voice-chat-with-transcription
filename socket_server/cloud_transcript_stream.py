@@ -2,21 +2,16 @@ import asyncio
 import queue
 import sys
 import threading
-import os
 from typing import Dict
 
 from google.cloud import speech
 
-GOOGLE_SERVICE_JSON_FILE = os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'scrapper-system-stt-sa.json'
+from settings import GOOGLE_SERVICE_JSON_FILE
 
 clients = {}
 
 
 class ClientData:
-    """
-    Stores socket client data.
-    Creates thread for storing audio chunks in queue to later on generate them into transcription stream.
-    """
     def __init__(self, transcribe_thread, conn, config: Dict):
         self._buff = queue.Queue()
         self._thread = transcribe_thread
@@ -56,7 +51,6 @@ class ClientData:
             yield b"".join(data)
 
     async def send_client_data(self, data, is_final: bool):
-        print('data', data)
         await self._conn.emit('speechData', {'data': data, 'isFinal': is_final})
 
 
@@ -87,7 +81,6 @@ async def listen_print_loop(responses, client: ClientData):
             num_chars_printed = len(transcript)
         else:
             text = transcript + overwrite_chars
-            print(text)
 
             if client:
                 await client.send_client_data(text, True)
@@ -95,9 +88,6 @@ async def listen_print_loop(responses, client: ClientData):
 
 
 class GoogleSpeechWrapper:
-    """
-    Handles audio stream real-time transcription via Google Cloud Speech-to-text.
-    """
     encoding_map = {'LINEAR16': speech.RecognitionConfig.AudioEncoding.LINEAR16}
 
     @staticmethod
@@ -116,10 +106,7 @@ class GoogleSpeechWrapper:
         )
         audio_generator = client.generator()
         requests = (speech.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
-        print('AAA')
         responses = speech_client.streaming_recognize(streaming_config, requests)
-        print('resp' , responses)
-        print('bbb')
         await listen_print_loop(responses, client)
 
     @staticmethod
