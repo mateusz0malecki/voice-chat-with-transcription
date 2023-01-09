@@ -7,7 +7,7 @@ from autocorrect import Speller
 from deepmultilingualpunctuation import PunctuationModel
 
 language = 'pl'
-archive_name = os.path.join(f"nlp-models/{language}.tar.gz")
+archive_name = os.path.join(f"autocorrect-{language}.tar.gz")
 
 
 def load_from_tar(file_name="word_count.json"):
@@ -16,7 +16,7 @@ def load_from_tar(file_name="word_count.json"):
             return json.load(file)
 
 
-punctuation_model_pl = PunctuationModel(model="nlp-models/punctuate-all")
+punctuation_model_pl = PunctuationModel(model="kredor/punctuate-all")
 
 
 class CustomSpeller(Speller):

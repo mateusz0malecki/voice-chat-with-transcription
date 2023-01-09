@@ -1,6 +1,6 @@
 app/*.json
-app/nlp-models/
-socket_server/nlp-models/
+app/kredor/
+socket_server/kredor/
 socket_server/*.json
 TESTS_TRANSCRIPT/
 frontend/package-lock.json
