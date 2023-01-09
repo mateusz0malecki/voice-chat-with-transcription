@@ -92,6 +92,33 @@ async def create_new_transcription(
     return {"info": f"File will be saved shortly as '{transcription_filename}'"}
 
 
+### ZAPIS ZE STREAMA
+@router.post(
+    "/transcriptions/file",
+    status_code=status.HTTP_201_CREATED,
+)
+async def save_stream_transcription(
+    text: str,
+    db: Session = Depends(get_db),
+):
+    transcription_filename = "test.txt"
+    transcription = Transcription(
+        filename=transcription_filename,
+        url=app_settings.domain + app_settings.root_path + "/transcriptions/file/" + transcription_filename,
+    )
+    db.add(transcription)
+    db.commit()
+    db.refresh(transcription)
+
+    if not os.path.exists(app_settings.transcriptions_path):
+        os.mkdir(app_settings.transcriptions_path)
+    with open(app_settings.transcriptions_path + transcription_filename, 'a') as file:
+        file.write(text)
+
+    return {"info": f"File saved.'"}
+###
+
+
 @router.delete(
     "/transcriptions/{transcription_id}",
     dependencies=[Depends(get_current_user)]

@@ -7,7 +7,7 @@ from autocorrect import Speller
 from deepmultilingualpunctuation import PunctuationModel
 
 language = 'pl'
-archive_name = os.path.join(f"{language}.tar.gz")
+archive_name = os.path.join(f"nlp-models/{language}.tar.gz")
 
 
 def load_from_tar(file_name="word_count.json"):

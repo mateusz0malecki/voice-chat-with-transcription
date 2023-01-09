@@ -1,7 +1,7 @@
 import os
 from google.cloud import speech
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'scrapper-system-stt-sa.json'
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'sa-key.json'
 speech_client = speech.SpeechClient()
 
 

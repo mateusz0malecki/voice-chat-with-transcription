@@ -1,13 +1,14 @@
 import asyncio
 import queue
 import sys
+import os
 import threading
 from typing import Dict
 
 from google.cloud import speech
+from autocorrect_nlp import autocorrect_with_punctuation
 
-from settings import GOOGLE_SERVICE_JSON_FILE
-
+GOOGLE_SERVICE_JSON_FILE = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "sa-key.json")
 clients = {}
 
 
@@ -71,16 +72,16 @@ async def listen_print_loop(responses, client: ClientData):
         overwrite_chars = " " * (num_chars_printed - len(transcript))
 
         if not result.is_final:
-            sys.stdout.write(transcript + overwrite_chars + "\r")
+            sys.stdout.write(transcript + overwrite_chars + "\r\n")
             sys.stdout.flush()
             interim_flush_counter += 1
 
             if client and interim_flush_counter % 3 == 0:
                 interim_flush_counter = 0
-                await client.send_client_data(transcript + overwrite_chars + "\r", False)
+                # await client.send_client_data(transcript + overwrite_chars + "\r\n", False)
             num_chars_printed = len(transcript)
         else:
-            text = transcript + overwrite_chars
+            text = autocorrect_with_punctuation(transcript + overwrite_chars)
 
             if client:
                 await client.send_client_data(text, True)

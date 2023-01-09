@@ -1,4 +1,6 @@
 app/*.json
+app/nlp-models/
+socket_server/nlp-models/
 socket_server/*.json
 TESTS_TRANSCRIPT/
 frontend/package-lock.json
