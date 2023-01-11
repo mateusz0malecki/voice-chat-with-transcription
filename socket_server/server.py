@@ -10,23 +10,23 @@ sio.attach(app)
 
 
 @sio.on('join')
-def join(sid, username, room):
+async def join(sid, username, room):
     sio.enter_room(sid, room)
     print(f'RoomEvent: {username} has joined the room {room}\n')
-    sio.emit('ready', {username: username}, to=room, skip_sid=sid)
+    await sio.emit('ready', {username: username}, to=room, skip_sid=sid)
 
 
 @sio.on('data')
-def transfer_data(sid, username, room, data):
+async def transfer_data(sid, username, room, data):
     print(f'DataEvent: {username} has sent the data:\n {data}\n')
-    sio.emit('data', data, to=room, skip_sid=sid)
+    await sio.emit('data', data, to=room, skip_sid=sid)
 
 
 @sio.on('leave')
-def leave(sid, username, room):
+async def leave(sid, username, room):
     sio.leave_room(sid, room)
     print(f'RoomEvent: {username} has left the room {room}\n')
-    sio.emit('leave', {username: username}, to=room, skip_sid=sid)
+    await sio.emit('leave', {username: username}, to=room, skip_sid=sid)
 
 
 @sio.on('startGoogleCloudStream')
