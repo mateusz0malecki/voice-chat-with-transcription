@@ -8,9 +8,11 @@ let audioContext,
   worklet: AudioWorkletNode,
   input: MediaStreamAudioSourceNode,
   globalStream: MediaStream;
+  
+const socket = io("http://localhost:9000");
 
 const useTranscribe = () => {
-  const socket = io("http://localhost:9000");
+  console.log('socket0', socket)
 
   const mediaConstraints = {
     audio: true,
@@ -74,6 +76,7 @@ const useTranscribe = () => {
   };
 
   const closeAll = () => {
+    console.log('socket1', socket)
     socket.off("speechData");
     socket.off("googleCloudStreamError");
 
