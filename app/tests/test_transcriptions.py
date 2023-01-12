@@ -6,21 +6,6 @@ from settings import get_settings
 app_settings = get_settings()
 
 
-# THIS TEST NEEDS TO TEST CELERY TASK - TO BE ADDED LATER
-# def test_save_new_transcription(client):
-#     file_path = "tests/test-audio.wav"
-#     with open(file_path, "rb") as f:
-#         client.post(
-#             f"{app_settings.root_path}/recordings-file", files={
-#                 "file": f
-#             }
-#         )
-#     response = client.post(f'{app_settings.root_path}/transcriptions?recording_id=1')
-#     assert response.status_code == 201
-#     assert len(response.json()["info"]) == 58
-#     client.delete(f'{app_settings.root_path}/recordings/1')
-
-
 @pytest.mark.xfail
 def test_empty_db_transcriptions(client):
     response = client.get(f'{app_settings.root_path}/transcriptions')
