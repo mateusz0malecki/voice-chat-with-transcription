@@ -9,7 +9,11 @@ class Transcription(BaseConfig):
     filename: str
     url: str
     created_at: Optional[datetime]
-    recording: Recording
+    recording: Optional[Recording]
+
+
+class TranscriptionPostText(BaseConfig):
+    text: str
 
 
 class TranscriptionPagination(CustomPagination):

@@ -92,13 +92,12 @@ async def create_new_transcription(
     return {"info": f"File will be saved shortly as '{transcription_filename}'"}
 
 
-### ZAPIS ZE STREAMA
 @router.post(
     "/transcriptions/file",
     status_code=status.HTTP_201_CREATED,
 )
 async def save_stream_transcription(
-    text: str,
+    request: transcription_schemas.TranscriptionPostText,
     db: Session = Depends(get_db),
 ):
     transcription_filename = "test.txt"
@@ -113,10 +112,9 @@ async def save_stream_transcription(
     if not os.path.exists(app_settings.transcriptions_path):
         os.mkdir(app_settings.transcriptions_path)
     with open(app_settings.transcriptions_path + transcription_filename, 'a') as file:
-        file.write(text)
+        file.write(request.text)
 
     return {"info": f"File saved.'"}
-###
 
 
 @router.delete(
@@ -131,7 +129,7 @@ async def delete_transcription(
     if not transcription_to_delete:
         raise TranscriptionNotFound(transcription_id)
 
-    file_path = app_settings.recordings_path + transcription_to_delete.filename
+    file_path = app_settings.transcriptions_path + transcription_to_delete.filename
     try:
         os.remove(file_path)
     except Exception as e:
