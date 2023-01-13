@@ -4,6 +4,8 @@ from fastapi.responses import FileResponse
 from db.database import get_db
 from sqlalchemy.orm import Session
 from pydantic import parse_obj_as
+from datetime import datetime
+from secrets import token_urlsafe
 
 from models.transcription import Transcription
 from schemas import transcription_schemas
@@ -73,14 +75,14 @@ async def get_all_transcriptions(
 
 
 @router.post(
-    "/transcriptions/file",
+    "/transcriptions",
     status_code=status.HTTP_201_CREATED,
 )
 async def save_stream_transcription(
     request: transcription_schemas.TranscriptionPostText,
     db: Session = Depends(get_db),
 ):
-    transcription_filename = "test.txt"
+    transcription_filename = f"{datetime.now().strftime('%d-%m-%Y')}-{token_urlsafe(8)}.txt"
     transcription = Transcription(
         filename=transcription_filename,
         url=app_settings.domain + app_settings.root_path + "/transcriptions/file/" + transcription_filename,
@@ -89,9 +91,10 @@ async def save_stream_transcription(
     db.commit()
     db.refresh(transcription)
 
-    if not os.path.exists(app_settings.transcriptions_path):
-        os.mkdir(app_settings.transcriptions_path)
-    with open(app_settings.transcriptions_path + transcription_filename, 'a') as file:
+    dir_ = app_settings.transcriptions_path
+    if not os.path.exists(dir_):
+        os.mkdir(dir_)
+    with open(dir_ + transcription_filename, 'a') as file:
         file.write(request.text)
 
     return {"info": f"File saved.'"}

@@ -4,6 +4,8 @@ import sys
 import os
 import threading
 from typing import Dict
+import requests
+import json
 
 from google.cloud import speech
 
@@ -19,8 +21,17 @@ class ClientData:
         self._conn = conn
         self.general_config = {dict_key: config[dict_key] for dict_key in config if dict_key != 'audio'}
         self.audio_config = config['audio']
+        self.transcription_text = ''
 
     async def close(self):
+        requests.post(
+            url="http://app:8000/api/v1/transcriptions",
+            data=json.dumps(
+                {
+                    "text": self.transcription_text
+                }
+            )
+        )
         self._closed = True
         self._buff.put(None)
         self._thread.join()
@@ -69,20 +80,20 @@ async def listen_print_loop(responses, client: ClientData):
             continue
         transcript = result.alternatives[0].transcript
         overwrite_chars = " " * (num_chars_printed - len(transcript))
+        text = transcript.lower().strip() + overwrite_chars.lower().strip()
+        text = text.capitalize() + '.'
 
         if not result.is_final:
-            sys.stdout.write(transcript + overwrite_chars + "\r\n")
-            sys.stdout.flush()
+            # sys.stdout.write(transcript + overwrite_chars + "\r\n")
+            # sys.stdout.flush()
             interim_flush_counter += 1
-
             if client and interim_flush_counter % 3 == 0:
                 interim_flush_counter = 0
-                await client.send_client_data(transcript + overwrite_chars + "\r\n", False)
+                # await client.send_client_data(text + "\r\n", False)
             num_chars_printed = len(transcript)
         else:
-            text = transcript + overwrite_chars
-
             if client:
+                client.transcription_text += "- " + text + '\n'
                 await client.send_client_data(text, True)
             num_chars_printed = 0
 
@@ -105,9 +116,9 @@ class GoogleSpeechWrapper:
             interim_results=client.general_config['interimResults']
         )
         audio_generator = client.generator()
-        requests = (speech.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
-        responses = speech_client.streaming_recognize(streaming_config, requests)
-        await listen_print_loop(responses, client)
+        requests_google = (speech.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
+        responses_google = speech_client.streaming_recognize(streaming_config, requests_google)
+        await listen_print_loop(responses_google, client)
 
     @staticmethod
     async def start_recognition_stream(sio, client_id: str, config: Dict):

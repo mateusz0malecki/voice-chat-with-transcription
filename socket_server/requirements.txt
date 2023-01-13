@@ -3,3 +3,5 @@ gevent-websocket==0.10.1
 google-cloud-speech==2.16.2
 aiohttp==3.8.3
 python-socketio==5.7.2
+# requests to api
+requests==2.28.2

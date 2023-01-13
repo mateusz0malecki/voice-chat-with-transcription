@@ -14,7 +14,7 @@ def test_empty_db_transcriptions(client):
 
 def test_save_stream_transcription(client):
     data = {"text": "Test test 123."}
-    response = client.post(f'{app_settings.root_path}/transcriptions/file', json.dumps(data))
+    response = client.post(f'{app_settings.root_path}/transcriptions', json.dumps(data))
     assert response.status_code == 201
 
 
