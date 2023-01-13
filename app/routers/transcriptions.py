@@ -82,6 +82,10 @@ async def save_stream_transcription(
     request: transcription_schemas.TranscriptionPostText,
     db: Session = Depends(get_db),
 ):
+    data_dir = "data/"
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+
     transcription_filename = f"{datetime.now().strftime('%d-%m-%Y')}-{token_urlsafe(8)}.txt"
     transcription = Transcription(
         filename=transcription_filename,

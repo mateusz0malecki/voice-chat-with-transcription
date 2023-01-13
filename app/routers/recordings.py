@@ -31,8 +31,9 @@ async def upload_recorded_audio_bytes(
         browser: str = Form(),
         db: Session = Depends(get_db)
 ):
-    if not os.path.exists("data/temp"):
-        os.mkdir("data/temp")
+    temp_dir = "data/temp/"
+    if not os.path.exists(temp_dir):
+        os.mkdir(temp_dir)
 
     new_filename, location, duration = convert_and_save_file(browser, file)
 
