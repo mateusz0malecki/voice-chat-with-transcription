@@ -24,14 +24,17 @@ class ClientData:
         self.audio_config = config['audio']
         self.transcription_text = ''
 
-    async def close(self):
+    async def close(self, token: str):
         requests.post(
             url="http://app:8000/api/v1/transcriptions",
             data=json.dumps(
                 {
                     "text": self.transcription_text
                 }
-            )
+            ),
+            headers={
+                "Authorization": f"Bearer {token}"
+            }
         )
         self._closed = True
         self._buff.put(None)
@@ -82,7 +85,7 @@ async def listen_print_loop(responses, client: ClientData):
         transcript = result.alternatives[0].transcript
         overwrite_chars = " " * (num_chars_printed - len(transcript))
         text = transcript.lower().strip() + overwrite_chars.lower().strip()
-        text = text.capitalize() + '. '
+        text = text.capitalize() + '.'
 
         if not result.is_final:
             # sys.stdout.write(transcript + overwrite_chars + "\r\n")
@@ -94,8 +97,9 @@ async def listen_print_loop(responses, client: ClientData):
             num_chars_printed = len(transcript)
         else:
             if client:
-                client.transcription_text += f"[{datetime.utcnow().strftime('%Y/%m/%d, %H:%M:%S')}] {text}\n"
-                await client.send_client_data(text, True)
+                text_with_timestamp = f"[{datetime.utcnow().strftime('%Y/%m/%d, %H:%M:%S')}] {text}\n"
+                client.transcription_text += text_with_timestamp
+                await client.send_client_data(text_with_timestamp, True)
             num_chars_printed = 0
 
 
@@ -122,25 +126,41 @@ class GoogleSpeechWrapper:
         await listen_print_loop(responses_google, client)
 
     @staticmethod
-    async def start_recognition_stream(sio, client_id: str, config: Dict):
-        if client_id not in clients:
-            clients[client_id] = ClientData(
-                threading.Thread(
-                    target=asyncio.run,
-                    args=(GoogleSpeechWrapper.start_listen(client_id),)
-                ),
-                sio,
-                config
-            )
-            clients[client_id].start_transcribing()
+    async def start_recognition_stream(sio, client_id: str, config: Dict, token: str):
+        response = requests.get(
+            url="http://app:8000/api/v1/me",
+            headers={
+                "Authorization": f"Bearer {token}"
+            }
+        )
+        if response.status_code == 200:
+            if client_id not in clients:
+                clients[client_id] = ClientData(
+                    threading.Thread(
+                        target=asyncio.run,
+                        args=(GoogleSpeechWrapper.start_listen(client_id),)
+                    ),
+                    sio,
+                    config
+                )
+                clients[client_id].start_transcribing()
+            else:
+                print('Warning - already running transcription for client')
         else:
-            print('Warning - already running transcription for client')
+            print('Not authenticated.')
 
     @staticmethod
-    async def stop_recognition_stream(client_id: str):
-        if client_id in clients:
-            await clients[client_id].close()
-            del clients[client_id]
+    async def stop_recognition_stream(client_id: str, token: str):
+        response = requests.get(
+            url="http://app:8000/api/v1/me",
+            headers={
+                "Authorization": f"Bearer {token}"
+            }
+        )
+        if response.status_code == 200:
+            if client_id in clients:
+                await clients[client_id].close(token)
+                del clients[client_id]
 
     @staticmethod
     def receive_data(client_id: str, data):
