@@ -47,3 +47,13 @@ def autocorrect_with_punctuation(text: str):
     autocorrected_text = spell_pl(text)
     text_with_punctuation = punctuation_model_pl.restore_punctuation(autocorrected_text)
     return auto_capitalize(text_with_punctuation)
+
+
+def save_autocorrected_text(text: str, transcription_filename: str, directory: str):
+    with open(directory + transcription_filename, 'a') as file:
+        text_list = text.split('\n')
+        print(text_list)
+        for text in text_list:
+            text_ = text.split('] ')
+            if len(text_) > 1:
+                file.write(f"{text_[0]}] {autocorrect_with_punctuation(text_[1]).replace('. .', '.')}\n")

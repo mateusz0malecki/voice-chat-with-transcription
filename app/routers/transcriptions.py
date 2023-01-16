@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter, status, Depends, Response, HTTPException
+from fastapi import APIRouter, status, Depends, Response, HTTPException, BackgroundTasks
 from fastapi.responses import FileResponse
 from db.database import get_db
 from sqlalchemy.orm import Session
@@ -12,6 +12,7 @@ from schemas import transcription_schemas
 from auth.jwt_helper import get_current_user
 from exceptions.exceptions import TranscriptionNotFound
 from settings import get_settings
+from utils.autocorrect_nlp import save_autocorrected_text
 
 app_settings = get_settings()
 router = APIRouter(prefix=f"{app_settings.root_path}", tags=["Transcriptions"])
@@ -77,8 +78,10 @@ async def get_all_transcriptions(
 @router.post(
     "/transcriptions",
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(get_current_user)]
 )
 async def save_stream_transcription(
+    background_tasks: BackgroundTasks,
     request: transcription_schemas.TranscriptionPostText,
     db: Session = Depends(get_db),
 ):
@@ -98,9 +101,13 @@ async def save_stream_transcription(
     dir_ = app_settings.transcriptions_path
     if not os.path.exists(dir_):
         os.mkdir(dir_)
-    with open(dir_ + transcription_filename, 'a') as file:
-        file.write(request.text)
 
+    background_tasks.add_task(
+        save_autocorrected_text,
+        text=request.text,
+        transcription_filename=transcription_filename,
+        directory=dir_
+    )
     return {"info": f"File saved.'"}
 
 
@@ -125,50 +132,3 @@ async def delete_transcription(
     db.delete(transcription_to_delete)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-# @router.post(
-#     "/transcriptions",
-#     status_code=status.HTTP_201_CREATED,
-#     dependencies=[Depends(get_current_user)],
-# )
-# async def create_new_transcription(
-#     recording_id: int,
-#     db: Session = Depends(get_db),
-# ):
-#     recording = Recording.get_recording_by_id(db, recording_id)
-#     if not recording:
-#         raise RecordingNotFound(recording_id)
-#
-#     recording_filepath = app_settings.recordings_path + recording.filename
-#
-#     storage_client = get_client()
-#
-#     if recording.duration < 60 and os.path.getsize(recording_filepath) < 10000000:
-#         results = transcript_small_local_file_gcp(recording_filepath)
-#     else:
-#         storage_client.upload(recording.filename, recording_filepath)
-#         blob_uri = storage_client.get_blob_uri(recording.filename)
-#         blob_uri = blob_uri.replace('/o/', '/')
-#         results = transcript_big_bucket_file_gcp(blob_uri)
-#
-#     results_text = ""
-#     for result in results:
-#         results_text += f"- {autocorrect_with_punctuation(str(result.alternatives[0].transcript))}\n"
-#
-#     transcription_filename = f"{recording.filename.split('.')[0]}.txt"
-#     transcription = Transcription(
-#         filename=transcription_filename,
-#         url=app_settings.domain + app_settings.root_path + "/transcriptions/file/" + transcription_filename,
-#         recording_id=recording_id
-#     )
-#     db.add(transcription)
-#     db.commit()
-#     db.refresh(transcription)
-#
-#     if not os.path.exists(app_settings.transcriptions_path):
-#         os.mkdir(app_settings.transcriptions_path)
-#     with open(app_settings.transcriptions_path + transcription_filename, 'w') as file:
-#         file.write(results_text)
-#
-#     return {"info": f"File saved as '{transcription_filename}'"}

@@ -1,11 +1,12 @@
-import asyncio
-import queue
 import sys
 import os
+import asyncio
+import queue
 import threading
-from typing import Dict
 import requests
 import json
+from typing import Dict
+from datetime import datetime
 
 from google.cloud import speech
 
@@ -81,7 +82,7 @@ async def listen_print_loop(responses, client: ClientData):
         transcript = result.alternatives[0].transcript
         overwrite_chars = " " * (num_chars_printed - len(transcript))
         text = transcript.lower().strip() + overwrite_chars.lower().strip()
-        text = text.capitalize() + '.'
+        text = text.capitalize() + '. '
 
         if not result.is_final:
             # sys.stdout.write(transcript + overwrite_chars + "\r\n")
@@ -93,7 +94,7 @@ async def listen_print_loop(responses, client: ClientData):
             num_chars_printed = len(transcript)
         else:
             if client:
-                client.transcription_text += "- " + text + '\n'
+                client.transcription_text += f"[{datetime.utcnow().strftime('%Y/%m/%d, %H:%M:%S')}] {text}\n"
                 await client.send_client_data(text, True)
             num_chars_printed = 0
 
