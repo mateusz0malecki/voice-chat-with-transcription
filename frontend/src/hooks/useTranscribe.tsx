@@ -1,7 +1,22 @@
 import React from "react";
 import { io } from "socket.io-client";
 
+//@ts-ignore
 import recorderProcessor from "../utils/recorder-processor";
+import useLocalStorage from "./useLocalStorage";
+
+interface TranscriptionConfig {
+  audio: {
+    encoding: string;
+    sampleRateHertz: number;
+    languageCode: string;
+  };
+  interimResults: boolean;
+}
+
+interface DataRecieved {
+  (data: string, isFinal: boolean): void;
+}
 
 let audioContext,
   context: AudioContext,
@@ -12,62 +27,47 @@ let audioContext,
 const socket = io("http://localhost:9000");
 
 const useTranscribe = () => {
-  console.log('socket0', socket)
+  const { getLocalStorage } = useLocalStorage();
+
+  const { access_token } = getLocalStorage();
 
   const mediaConstraints = {
     audio: true,
     video: false,
   };
 
-  const initRecording = async (transcribeConfig, onData, onError) => {
-    socket.emit("startGoogleCloudStream", { ...transcribeConfig });
+  const initRecording = async (transcribeConfig: TranscriptionConfig, handleDataRecived: DataRecieved): Promise<void> => {
+    socket.emit("startGoogleCloudStream", { ...transcribeConfig }, access_token);
 
-    audioContext = window.AudioContext || window.webkitAudioContext;
-
+    audioContext = window.AudioContext;
     context = new AudioContext();
 
-    await context.audioWorklet.addModule(recorderProcessor).then(() => {
-      // console.log("Audio worklet module loaded successfully.");
-
-      worklet = new AudioWorkletNode(context, "recorder.worklet");
-      worklet.port.postMessage("ping");
-      // console.log("AudioWorkletNode created successfully.");
-
-      worklet.connect(context.destination);
-    });
+    await context.audioWorklet.addModule(recorderProcessor)
+      .then( () => {
+        worklet = new AudioWorkletNode(context, "recorder.worklet");
+        worklet.port.postMessage("ping");
+        worklet.connect(context.destination);
+      });
 
     context.resume();
 
-    navigator.mediaDevices.getUserMedia(mediaConstraints).then((stream) => {
-      // console.log("AudioWorkletNode connected to audio graph.");
-      globalStream = stream;
+    navigator.mediaDevices.getUserMedia(mediaConstraints)
+      .then( (stream) => {
+        globalStream = stream;
+        
+        input = context.createMediaStreamSource(globalStream);
+        input.connect(worklet);
 
-      input = context.createMediaStreamSource(globalStream);
-      input.connect(worklet);
+        worklet.port.onmessage = (e) => {
+          socket.emit("binaryAudioData", e.data);
+        };
+      });
 
-      worklet.port.onmessage = (e) => {
-        // console.log("Received audio data: ", e.data);
-        // console.log("worklet.port.onmessage event handler called.");
-        socket.emit("binaryAudioData", e.data);
-      };
-    });
-
-    if (onData) {
+    if (handleDataRecived) {
       socket.on("speechData", (response) => {
-        onData(response.data, response.isFinal);
+        handleDataRecived(response.data, response.isFinal);
       });
     }
-
-    socket.on("googleCloudStreamError", (error) => {
-      if (onError) {
-        onError("error");
-      }
-      closeAll();
-    });
-
-    socket.on("endGoogleCloudStream", () => {
-      closeAll();
-    });
   };
 
   const stopRecording = () => {
@@ -76,11 +76,9 @@ const useTranscribe = () => {
   };
 
   const closeAll = () => {
-    console.log('socket1', socket)
     socket.off("speechData");
-    socket.off("googleCloudStreamError");
 
-    const tracks = globalStream ? globalStream.getTracks() : null;
+    const tracks:  MediaStreamTrack[] | null = globalStream ? globalStream.getTracks() : null;
     const track = tracks ? tracks[0] : null;
 
     if (track) {
@@ -99,13 +97,14 @@ const useTranscribe = () => {
     }
 
     if (context) {
-      context.close().then(() => {
-        input = null;
-        worklet = null;
-        context = null;
-        audioContext = null;
-      });
-    }
+      context.close()
+        .then(() => {
+          input = null;
+          worklet = null;
+          context = null;
+          audioContext = null;
+        });
+      }
   };
 
   return [initRecording, stopRecording];

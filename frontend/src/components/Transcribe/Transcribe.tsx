@@ -1,78 +1,80 @@
-import React from 'react';
+import React from "react";
 
-import useTranscribe from '../../hooks/useTranscribe';
+import useTranscribe from "../../hooks/useTranscribe";
+import './transcribe.css'
 
-
-const Transribe = () => {
-  const [transcribedData, setTranscribedData] = React.useState([]);
-  const [interimTranscribedData, setInterimTranscribedData] = React.useState('');
-  const [isRecording, setIsRecording] = React.useState(false);
-
-  const [ initRecording, stopRecording ] = useTranscribe();
-
-  // console.log('a' , transcribedData);
-  // console.log('b', interimTranscribedData)
-
-    const flushInterimData = () => {
-      if(interimTranscribedData !== '') {
-        setInterimTranscribedData('');
-        setTranscribedData( prev => [...prev, interimTranscribedData] );
-      }
-    }
-
-    const handleDataRecived = (data, isFinal) => {
-      if(!isFinal) setInterimTranscribedData(data);
-
-      setInterimTranscribedData('');
-      setTranscribedData( prev => [...prev, data] );
-    }
-
-    const getTranscriptionConfig = () => {
-      return {
-        audio: {
-          encoding: 'LINEAR16',
-          sampleRateHertz: 16000,
-          languageCode: 'pl-PL',
-        },
-        interimResults: true
-      }
-    }
-    
-    const onStart = () => {
-      const transcriptionConfig = getTranscriptionConfig();
-
-      setTranscribedData([]);
-      setIsRecording(true);
-      initRecording(transcriptionConfig, handleDataRecived, (error) => {
-        console.error('Error when transcribing', error);
-        setIsRecording(false)
-      });
-    }
-
-    const onStop = () => {
-      setIsRecording(false);
-      flushInterimData();
-      stopRecording();
-    }
-
-    return (
-        <section className='secton'>
-          <header className='section__header'>
-            <h3>
-              Real-time transcription playgroud
-            </h3>
-          </header>
-
-          <div className='section_buttons'>
-            {!isRecording && <button onClick={onStart}>Start</button>}
-            {isRecording && <button onClick={onStop}>Stop</button>}
-          </div>
-          <div className='section__transcription'>
-            <p>{transcribedData}</p>
-            <p className='section__transcription--output'>{interimTranscribedData}</p>
-          </div>
-        </section>
-    );
+interface TranscriptionConfig {
+  audio: {
+    encoding: string;
+    sampleRateHertz: number;
+    languageCode: string;
+  };
+  interimResults: boolean;
 }
+
+const Transribe = ( {isTranscript}: {isTranscript: boolean}): JSX.Element => {
+  const [transcribedData, setTranscribedData] = React.useState([]);
+  const [interimTranscribedData, setInterimTranscribedData] = React.useState("");
+  const [initRecording, stopRecording] = useTranscribe();
+
+  React.useEffect( () => {
+    if (isTranscript) onStart();
+  },[isTranscript])
+
+  const flushInterimData = (): void => {
+    if (interimTranscribedData !== "") {
+      setInterimTranscribedData("");
+      setTranscribedData((prev) => [...prev, interimTranscribedData]);
+    }
+  };
+
+  const handleDataRecived = (data:string, isFinal: boolean): void => {
+    console.log('isFinal' , isFinal)
+    if (!isFinal) setInterimTranscribedData(data);
+
+    setInterimTranscribedData("");
+    setTranscribedData((prev) => [...prev, data]);
+  };
+
+  const getTranscriptionConfig = (): TranscriptionConfig => {
+    return {
+      audio: {
+        encoding: "LINEAR16",
+        sampleRateHertz: 16000,
+        languageCode: "pl-PL",
+      },
+      interimResults: true,
+    };
+  };
+
+  const onStart = (): void => {
+    const transcriptionConfig = getTranscriptionConfig();
+
+    setTranscribedData([]);
+    initRecording(transcriptionConfig, handleDataRecived);
+  };
+
+  // const onStop = (): void => {
+  //   flushInterimData();
+  //   stopRecording();
+  // };
+
+  return (
+    <section className="section__wrap">
+      <header className="section__header">
+        <h3>Real-time transcription playgroud</h3>
+      </header>
+      <div className="section__transcription">
+        <div className="section__transcription--output">
+          {transcribedData.map( (transcription, index) => {
+            return (
+              <span key={index} className='transcription--output--item'>{transcription}</span>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  );
+};
 
 export default Transribe;
