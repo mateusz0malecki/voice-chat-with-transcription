@@ -66,3 +66,11 @@ def convert_to_wav_and_save_file(filepath: str, filename: str):
 
     os.remove(filepath + filename)
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported file extension.")
+
+
+def delete_audio_file(filepath):
+    """
+    Deletes temp file created for partial audio response.
+    """
+    if os.path.exists(filepath):
+        os.remove(filepath)
