@@ -77,6 +77,7 @@ async def listen_print_loop(responses, client: ClientData, username):
     """
     num_chars_printed = 0
     interim_flush_counter = 0
+    start_time = datetime.utcnow()
     for response in responses:
         if not response.results:
             continue
@@ -98,7 +99,8 @@ async def listen_print_loop(responses, client: ClientData, username):
             num_chars_printed = len(transcript)
         else:
             if client:
-                text_with_timestamp = f"[{datetime.utcnow().strftime('%Y/%m/%d, %H:%M:%S')}] {username} - {text}\n"
+                print("RESULT", result)
+                text_with_timestamp = f"[{(datetime.utcnow()-start_time).total_seconds()-1}] {username} - {text}\n"
                 client.transcription_text += text_with_timestamp
                 await client.send_client_data(text_with_timestamp, True)
             num_chars_printed = 0

@@ -97,8 +97,8 @@ async def upload_new_recording_file(
 async def get_recording_file(
         background_tasks: BackgroundTasks,
         filename: str,
-        st: int | None = None,
-        et: int | None = None
+        st: float | None = None,
+        et: float | None = None
 ):
     dir_ = app_settings.recordings_path
     file_path = os.path.join(dir_, filename)
@@ -107,8 +107,10 @@ async def get_recording_file(
             return FileResponse(file_path, media_type="audio/wav")
         else:
             audio_file = AudioSegment.from_wav(file_path)[st*1000:et*1000]
+            audio_file_with_fade = audio_file.apply_gain(volume_change=-15)\
+                .fade(to_gain=15, start=0, end=1000)
             temp_file_path = f"data/temp/{filename[:-4]}-{token_urlsafe(8)}.wav"
-            audio_file.export(temp_file_path, format="wav")
+            audio_file_with_fade.export(temp_file_path, format="wav")
             background_tasks.add_task(
                 delete_audio_file,
                 filepath=temp_file_path
