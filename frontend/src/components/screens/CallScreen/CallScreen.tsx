@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import socketio from "socket.io-client";
 
 import Transcribe from '../../Transcribe/Transcribe'
@@ -11,12 +11,13 @@ const socket = socketio("http://localhost:9000", {
 
 const CallScreen = (): JSX.Element => {
   const params = useParams();
-  const { username, room } = params;
+  const navigate = useNavigate();
   const localVideoRef = React.useRef<HTMLVideoElement>(null);
   const remoteVideoRef = React.useRef<HTMLVideoElement>(null);
   const [isTranscript, setIsTranscript] = React.useState(false);
   const [ leaveAction, setLeaveAction ] = React.useState(false)
-
+  
+  const { username, room } = params;
   const peerConnections = new Map();
 
   React.useEffect(() => {
@@ -29,6 +30,11 @@ const CallScreen = (): JSX.Element => {
       });
     };
   }, []);
+
+  React.useEffect(() => {
+    if(!leaveAction) return;
+      leaveAction && stopConnection();
+  },[leaveAction])
   
   socket.on("ready", () => {
     createPeerConnection(socket.id);
@@ -38,6 +44,11 @@ const CallScreen = (): JSX.Element => {
   socket.on("data", (data) => {
     signalingDataHandler(data, socket.id);
     setIsTranscript(true);
+  });
+
+  socket.on("leave", (data) => {
+    const remoteVideo = document.querySelector('.video--remote');
+    remoteVideo && remoteVideo.remove();
   });
 
   const startConnection = (): void => {
@@ -57,6 +68,7 @@ const CallScreen = (): JSX.Element => {
   const stopConnection = (): void => {
     socket.emit("leave", username, room);
     setIsTranscript(false);
+    navigate('/');
   };
 
   const sendData = (data: { type: string, candidate: RTCIceCandidate } | RTCLocalSessionDescriptionInit ) => {
@@ -156,11 +168,11 @@ const CallScreen = (): JSX.Element => {
         <span className="video__room">{"Room name: " + room}</span>
         <div className="video__holder">
           <div>
-            <video className="video" autoPlay muted playsInline ref={localVideoRef} />
+            <video className="video video--local" autoPlay muted playsInline ref={localVideoRef} />
             {/* <span>{"Username:" + username}</span> */}
           </div>
           <div>
-            <video className="video" autoPlay muted playsInline ref={remoteVideoRef} />
+            <video className="video video--remote" autoPlay muted playsInline ref={remoteVideoRef} />
             {/* <span>{"Username:" + username}</span> */}
           </div>
         </div>

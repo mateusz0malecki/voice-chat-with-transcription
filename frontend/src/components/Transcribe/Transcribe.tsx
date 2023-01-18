@@ -25,8 +25,6 @@ const Transribe = ( {isTranscript, leaveAction}: {isTranscript: boolean, leaveAc
     if(leaveAction) onStop();
   },[leaveAction])
 
-  console.log('leave' , leaveAction)
-
   const flushInterimData = (): void => {
     if (interimTranscribedData !== "") {
       setInterimTranscribedData("");
@@ -35,7 +33,6 @@ const Transribe = ( {isTranscript, leaveAction}: {isTranscript: boolean, leaveAc
   };
 
   const handleDataRecived = (data:string, isFinal: boolean): void => {
-    console.log('isFinal' , isFinal)
     if (!isFinal) setInterimTranscribedData(data);
 
     setInterimTranscribedData("");

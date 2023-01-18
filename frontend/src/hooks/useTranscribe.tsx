@@ -1,6 +1,5 @@
 import React from "react";
 import { io } from "socket.io-client";
-import { useNavigate } from "react-router-dom";
 
 //@ts-ignore
 import recorderProcessor from "../utils/recorder-processor";
@@ -29,7 +28,6 @@ const socket = io("http://localhost:9000");
 
 const useTranscribe = () => {
   const { getLocalStorage } = useLocalStorage();
-  const navigate = useNavigate()
 
   const { access_token } = getLocalStorage();
 
@@ -75,7 +73,6 @@ const useTranscribe = () => {
   const stopRecording = (): void => {
     socket.emit("endGoogleCloudStream", access_token);
     closeAll();
-    navigate('/');
   };
 
   const closeAll = () => {
