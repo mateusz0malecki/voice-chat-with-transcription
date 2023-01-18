@@ -12,6 +12,7 @@ from google.cloud import speech
 
 GOOGLE_SERVICE_JSON_FILE = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "sa-key.json")
 clients = {}
+users = []
 
 
 class ClientData:
@@ -69,7 +70,7 @@ class ClientData:
         await self._conn.emit('speechData', {'data': data, 'isFinal': is_final})
 
 
-async def listen_print_loop(responses, client: ClientData):
+async def listen_print_loop(responses, client: ClientData, username):
     """
     Iterates through server responses and sends them back to client.
     The responses passed is a generator that will block until a response is provided by the server.
@@ -97,7 +98,7 @@ async def listen_print_loop(responses, client: ClientData):
             num_chars_printed = len(transcript)
         else:
             if client:
-                text_with_timestamp = f"[{datetime.utcnow().strftime('%Y/%m/%d, %H:%M:%S')}] {text}\n"
+                text_with_timestamp = f"[{datetime.utcnow().strftime('%Y/%m/%d, %H:%M:%S')}] {username} - {text}\n"
                 client.transcription_text += text_with_timestamp
                 await client.send_client_data(text_with_timestamp, True)
             num_chars_printed = 0
@@ -107,7 +108,7 @@ class GoogleSpeechWrapper:
     encoding_map = {'LINEAR16': speech.RecognitionConfig.AudioEncoding.LINEAR16}
 
     @staticmethod
-    async def start_listen(client_id: str):
+    async def start_listen(client_id: str, username: str):
         client = clients[client_id]
         speech_client = speech.SpeechClient.from_service_account_json(GOOGLE_SERVICE_JSON_FILE)
         config = speech.RecognitionConfig(
@@ -123,7 +124,7 @@ class GoogleSpeechWrapper:
         audio_generator = client.generator()
         requests_google = (speech.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
         responses_google = speech_client.streaming_recognize(streaming_config, requests_google)
-        await listen_print_loop(responses_google, client)
+        await listen_print_loop(responses_google, client, username)
 
     @staticmethod
     async def start_recognition_stream(sio, client_id: str, config: Dict, token: str):
@@ -134,18 +135,24 @@ class GoogleSpeechWrapper:
             }
         )
         if response.status_code == 200:
-            if client_id not in clients:
-                clients[client_id] = ClientData(
-                    threading.Thread(
-                        target=asyncio.run,
-                        args=(GoogleSpeechWrapper.start_listen(client_id),)
-                    ),
-                    sio,
-                    config
-                )
-                clients[client_id].start_transcribing()
+            email = response.json()["email"]
+            username = response.json()["name"]
+            if email not in users:
+                if client_id not in clients:
+                    users.append(email)
+                    clients[client_id] = ClientData(
+                        threading.Thread(
+                            target=asyncio.run,
+                            args=(GoogleSpeechWrapper.start_listen(client_id, username),)
+                        ),
+                        sio,
+                        config
+                    )
+                    clients[client_id].start_transcribing()
+                else:
+                    print('Warning - already running transcription for client')
             else:
-                print('Warning - already running transcription for client')
+                print('Warning - already running transcription for user')
         else:
             print('Not authenticated.')
 
@@ -158,9 +165,12 @@ class GoogleSpeechWrapper:
             }
         )
         if response.status_code == 200:
-            if client_id in clients:
-                await clients[client_id].close(token)
-                del clients[client_id]
+            email = response.json()["email"]
+            if email in users:
+                if client_id in clients:
+                    await clients[client_id].close(token)
+                    del clients[client_id]
+                    users.remove(email)
 
     @staticmethod
     def receive_data(client_id: str, data):
