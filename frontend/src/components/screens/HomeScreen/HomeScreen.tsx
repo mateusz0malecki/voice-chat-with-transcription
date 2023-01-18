@@ -1,35 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import useLocalStorage from '../../../hooks/useLocalStorage';
-import useFetch from '../../../hooks/useFetch'
-
 import './homeScreen.css'
 
 const HomeScreen = (): JSX.Element => {
     const [room, setRoom] = React.useState('');
     const [username, setUsername] = React.useState('');
-    const { setLocalStorage } = useLocalStorage();
-    const { userSignIn } = useFetch();;
-
-    React.useEffect(() => {
-        singIn()
-    },[])
-
-    const singIn = async (): Promise<void> => {
-
-        const email: string = 'admin@admin.com';
-        const password: string = 'admin';
-        
-        const userData: URLSearchParams = new URLSearchParams({
-            'username': email,
-            'password': password,
-        });
-    
-        const signInResponse = await userSignIn(userData);
-
-        signInResponse && setLocalStorage(signInResponse);
-    };
 
     return(
         <div className='form__wrap'>

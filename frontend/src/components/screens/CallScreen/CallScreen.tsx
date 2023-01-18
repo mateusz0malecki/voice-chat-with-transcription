@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import socketio from "socket.io-client";
 
 import Transcribe from '../../Transcribe/Transcribe'
+import { path } from '../../../helpers/configs'
 import "./callScreen.css";
 
 const socket = socketio("http://localhost:9000", {
@@ -16,7 +17,7 @@ const CallScreen = (): JSX.Element => {
   const remoteVideoRef = React.useRef<HTMLVideoElement>(null);
   const [isTranscript, setIsTranscript] = React.useState(false);
   const [ leaveAction, setLeaveAction ] = React.useState(false)
-  
+  const { homeScreenPage } = path;
   const { username, room } = params;
   const peerConnections = new Map();
 
@@ -68,7 +69,7 @@ const CallScreen = (): JSX.Element => {
   const stopConnection = (): void => {
     socket.emit("leave", username, room);
     setIsTranscript(false);
-    navigate('/');
+    navigate(homeScreenPage);
   };
 
   const sendData = (data: { type: string, candidate: RTCIceCandidate } | RTCLocalSessionDescriptionInit ) => {

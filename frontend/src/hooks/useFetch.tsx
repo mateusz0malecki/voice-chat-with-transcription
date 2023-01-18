@@ -1,14 +1,14 @@
 import { _fetch } from '../helpers/fetchProvider';
 import { serverEndpoints } from '../helpers/configs';
 
-interface SignInResponse {
+interface SignInAndUpResponse {
     "access_token": string;
 }
 
 const useFetch = () => {
-    const { login } = serverEndpoints;
+    const { login, register } = serverEndpoints;
 
-    const userSignIn = (userData: URLSearchParams): Promise<SignInResponse> => {
+    const userSignIn = (userData: URLSearchParams): Promise<SignInAndUpResponse> => {
         const additionalPath = login;
         const options = { 
             method: 'POST', 
@@ -18,7 +18,17 @@ const useFetch = () => {
         return _fetch({ additionalPath, options })
     };
 
-    return { userSignIn }
+    const userSignUp = (userData: URLSearchParams): Promise<SignInAndUpResponse> => {
+        const additionalPath = register;
+        const options = { 
+            method: 'PUT', 
+            body: userData,  
+        }
+
+        return _fetch({ additionalPath, options })
+    };
+
+    return { userSignIn, userSignUp }
 }
 
 export default useFetch;

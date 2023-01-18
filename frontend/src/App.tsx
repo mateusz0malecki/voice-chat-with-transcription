@@ -1,5 +1,5 @@
 import { BrowserRouter as Router } from "react-router-dom";
-import RouteList from "./components/screens/RouteList";
+import RouteList from "./components/RouteList/RouteList";
 
 import './app.css'
 
