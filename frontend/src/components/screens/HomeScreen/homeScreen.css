@@ -37,10 +37,6 @@
     cursor: pointer;
     float: right;
     clear: right;
-    -webkit-transition: 0.2s ease all;
-    -moz-transition: 0.2s ease all;
-    -ms-transition: 0.2s ease all;
-    -o-transition: 0.2s ease all;
     transition: 0.2s ease all;
 }
 

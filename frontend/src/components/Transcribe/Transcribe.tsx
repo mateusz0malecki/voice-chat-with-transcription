@@ -12,7 +12,7 @@ interface TranscriptionConfig {
   interimResults: boolean;
 }
 
-const Transribe = ( {isTranscript}: {isTranscript: boolean}): JSX.Element => {
+const Transribe = ( {isTranscript, leaveAction}: {isTranscript: boolean, leaveAction: boolean}): JSX.Element => {
   const [transcribedData, setTranscribedData] = React.useState([]);
   const [interimTranscribedData, setInterimTranscribedData] = React.useState("");
   const [initRecording, stopRecording] = useTranscribe();
@@ -20,6 +20,12 @@ const Transribe = ( {isTranscript}: {isTranscript: boolean}): JSX.Element => {
   React.useEffect( () => {
     if (isTranscript) onStart();
   },[isTranscript])
+
+  React.useEffect(() => {
+    if(leaveAction) onStop();
+  },[leaveAction])
+
+  console.log('leave' , leaveAction)
 
   const flushInterimData = (): void => {
     if (interimTranscribedData !== "") {
@@ -54,10 +60,11 @@ const Transribe = ( {isTranscript}: {isTranscript: boolean}): JSX.Element => {
     initRecording(transcriptionConfig, handleDataRecived);
   };
 
-  // const onStop = (): void => {
-  //   flushInterimData();
-  //   stopRecording();
-  // };
+  const onStop = (): void => {
+    const transcriptionConfig = getTranscriptionConfig();
+    flushInterimData();
+    stopRecording(transcriptionConfig, handleDataRecived);
+  };
 
   return (
     <section className="section__wrap">

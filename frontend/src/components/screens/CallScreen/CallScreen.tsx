@@ -15,6 +15,7 @@ const CallScreen = (): JSX.Element => {
   const localVideoRef = React.useRef<HTMLVideoElement>(null);
   const remoteVideoRef = React.useRef<HTMLVideoElement>(null);
   const [isTranscript, setIsTranscript] = React.useState(false);
+  const [ leaveAction, setLeaveAction ] = React.useState(false)
 
   const peerConnections = new Map();
 
@@ -28,8 +29,7 @@ const CallScreen = (): JSX.Element => {
       });
     };
   }, []);
-
-
+  
   socket.on("ready", () => {
     createPeerConnection(socket.id);
     sendOffer(socket.id);
@@ -165,8 +165,9 @@ const CallScreen = (): JSX.Element => {
           </div>
         </div>
       </section>
+      <button className="video__button" onClick={() => setLeaveAction(true)}>Leave</button>
 
-      <Transcribe isTranscript={isTranscript}/>
+      <Transcribe isTranscript={isTranscript} leaveAction={leaveAction} />
     </div>
   );
 };
