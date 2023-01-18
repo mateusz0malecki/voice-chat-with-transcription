@@ -49,11 +49,15 @@ services:
 
   nginx:
     container_name: nginx
-    build:
-      context: ./nginx-server
-      dockerfile: Dockerfile
+    build: ./nginx-server
     ports:
       - "80:80"
+
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    ports:
+      - "5173:5173"
 
 volumes:
   db_data:
