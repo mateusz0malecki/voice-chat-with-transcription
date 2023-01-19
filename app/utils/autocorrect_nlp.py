@@ -52,7 +52,6 @@ def autocorrect_with_punctuation(text: str):
 def save_autocorrected_text(text: str, transcription_filename: str, directory: str):
     with open(directory + transcription_filename, 'a') as file:
         text_list = text.split('\n')
-        print(text_list)
         for text in text_list:
             text_ = text.split('] ')
             if len(text_) > 1:
