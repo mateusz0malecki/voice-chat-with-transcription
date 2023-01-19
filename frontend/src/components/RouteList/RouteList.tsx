@@ -1,10 +1,10 @@
 import { Routes, Route } from "react-router-dom";
-import CallScreen from '../Screens/CallScreen/CallScreen'
+import CallScreen from "../Screens/CallScreen/CallScreen"
 import HomeScreen from "../Screens/HomeScreen/HomeScreen";
 import SignIn from "../SignIn/SignIn";
-import SignUp from '../SignUp/SignUp'
+import SignUp from "../SignUp/SignUp"
 
-import { path } from '../../helpers/configs'
+import { path } from "../../helpers/configs"
 
 const Router = (): JSX.Element => {
   const { signInPage, signUpPage, homeScreenPage, callScreenPage  } = path;

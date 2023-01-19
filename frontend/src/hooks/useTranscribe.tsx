@@ -24,7 +24,7 @@ let audioContext,
   input: MediaStreamAudioSourceNode,
   globalStream: MediaStream;
   
-const socket = io("http://34.116.183.104/sockets");
+const socket = io("http://localhost", {path: "/sockets/"});
 
 const useTranscribe = () => {
   const { getLocalStorage } = useLocalStorage();
