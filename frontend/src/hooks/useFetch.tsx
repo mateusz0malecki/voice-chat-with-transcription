@@ -18,11 +18,11 @@ const useFetch = () => {
         return _fetch({ additionalPath, options })
     };
 
-    const userSignUp = (userData: URLSearchParams): Promise<SignInAndUpResponse> => {
+    const userSignUp = (userData:any): Promise<SignInAndUpResponse> => {
         const additionalPath = register;
         const options = { 
-            method: 'PUT', 
-            body: userData,  
+            method: 'POST', 
+            body: userData,
         }
 
         return _fetch({ additionalPath, options })
