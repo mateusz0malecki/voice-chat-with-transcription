@@ -6,7 +6,7 @@ import Transcribe from '../../Transcribe/Transcribe'
 import { path } from '../../../helpers/configs'
 import "./callScreen.css";
 
-const socket = socketio("http://localhost:9000", {
+const socket = socketio("http://34.116.183.104/sockets", {
   autoConnect: false,
 });
 

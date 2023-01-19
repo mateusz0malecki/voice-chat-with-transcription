@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException, Response
+from fastapi import APIRouter, Depends, status, HTTPException, Response, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -45,10 +45,13 @@ async def login_for_access_token(
 )
 async def register(
         response: Response,
-        request: user_schemas.UserCreate,
+        email: str = Form(''),
+        password: str = Form(''),
+        name: str = Form(''),
         db: Session = Depends(get_db),
 ):
-    created_user = User(**request.dict())
+    passwd_hash = Hash.get_password_hash(password)
+    created_user = User(email=email, password=passwd_hash, name=name)
     try:
         db.add(created_user)
         db.commit()
