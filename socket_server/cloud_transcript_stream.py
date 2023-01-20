@@ -77,17 +77,16 @@ async def listen_print_loop(responses, client: ClientData, username):
     """
     num_chars_printed = 0
     interim_flush_counter = 0
-    start_time = datetime.utcnow()
     for response in responses:
         if not response.results:
             continue
         result = response.results[0]
         if not result.alternatives:
             continue
-        transcript = result.alternatives[0].transcript
+        alternative = result.alternatives[0]
+        transcript = alternative.transcript
         overwrite_chars = " " * (num_chars_printed - len(transcript))
         text = transcript.lower().strip() + overwrite_chars.lower().strip()
-        text = text.capitalize() + '.'
 
         if not result.is_final:
             # sys.stdout.write(transcript + overwrite_chars + "\r\n")
@@ -99,10 +98,15 @@ async def listen_print_loop(responses, client: ClientData, username):
             num_chars_printed = len(transcript)
         else:
             if client:
-                print("RESULT", result)
-                text_with_timestamp = f"[{(datetime.utcnow()-start_time).total_seconds()-1}] {username} - {text}\n"
-                client.transcription_text += text_with_timestamp
-                await client.send_client_data(text_with_timestamp, True)
+                timestamp = datetime.utcnow().strftime('%Y/%m/%d, %H:%M:%S')
+                words = ''
+                timestamps = ''
+                for word_info in alternative.words:
+                    words += f"{word_info.word.lower()} "
+                    timestamps += f"{word_info.start_time.total_seconds()},"
+                client.transcription_text += \
+                    f"[{timestamp}] - [{username}] - [{timestamps[:-1]}] - {words.strip()}.\n"
+                await client.send_client_data(f"[{timestamp}] {username} - {text.capitalize()}.\n", True)
             num_chars_printed = 0
 
 
@@ -117,7 +121,8 @@ class GoogleSpeechWrapper:
             encoding=GoogleSpeechWrapper.encoding_map[client.audio_config['encoding']],
             sample_rate_hertz=client.audio_config['sampleRateHertz'],
             language_code=client.audio_config['languageCode'],
-            enable_automatic_punctuation=True
+            enable_automatic_punctuation=True,
+            enable_word_time_offsets=True,
         )
         streaming_config = speech.StreamingRecognitionConfig(
             config=config,
