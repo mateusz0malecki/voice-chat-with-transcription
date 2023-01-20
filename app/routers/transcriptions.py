@@ -66,7 +66,7 @@ async def get_all_transcriptions(
     transcriptions_model = parse_obj_as(list[transcription_schemas.Transcription], transcriptions)
     response = transcription_schemas.TranscriptionPagination(
         transcriptions_model,
-        "/api/v1/recordings",
+        "/api/v1/transcriptions",
         first,
         last,
         page,

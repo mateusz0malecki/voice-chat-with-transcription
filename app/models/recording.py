@@ -12,7 +12,6 @@ class Recording(Base):
     duration = Column(Float(precision=2), nullable=False, default=0)
     url = Column(String(256), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    transcription = relationship("Transcription", back_populates="recording", cascade="all, delete")
 
     def __repr__(self):
         return f"<id: {self.id}, length: {self.length}>"

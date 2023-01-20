@@ -12,8 +12,6 @@ class Transcription(Base):
     filename = Column(String(256), nullable=False)
     url = Column(String(256), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    recording_id = Column(ForeignKey("recording.id", ondelete="CASCADE"))
-    recording = relationship("Recording", back_populates="transcription")
 
     def __repr__(self):
         return f"<id: {self.id}, recording-id: {self.recording_id}>"
