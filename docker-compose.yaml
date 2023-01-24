@@ -52,6 +52,7 @@ services:
     build: ./nginx-server
     ports:
       - "80:80"
+      - "443:443"
 
 #  frontend:
 #    container_name: frontend
