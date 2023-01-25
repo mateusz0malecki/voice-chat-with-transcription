@@ -134,7 +134,7 @@ class GoogleSpeechWrapper:
         await listen_print_loop(responses_google, client, username)
 
     @staticmethod
-    async def start_recognition_stream(sio, client_id: str, config: Dict, token: str):
+    async def start_recognition_stream(sio, client_id: str, config: Dict, token: str, room: str):
         response = requests.get(
             url="http://app:8000/api/v1/me",
             headers={
@@ -164,7 +164,7 @@ class GoogleSpeechWrapper:
             print('Not authenticated.')
 
     @staticmethod
-    async def stop_recognition_stream(client_id: str, token: str):
+    async def stop_recognition_stream(client_id: str, token: str, room: str):
         response = requests.get(
             url="http://app:8000/api/v1/me",
             headers={

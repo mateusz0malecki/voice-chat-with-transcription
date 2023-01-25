@@ -1,4 +1,5 @@
 import os
+import json
 import pytest
 from settings import get_settings
 
@@ -12,15 +13,25 @@ def test_empty_db_recordings(client):
 
 
 def test_upload_recording_file(client):
+    data_user = {
+        "name": "name",
+        "email": "email@email.com",
+        "password": "password"
+    }
+    client.post(f'{app_settings.root_path}/register', json.dumps(data_user))
+
+    data_room = {"name": "test"}
+    client.post(f'{app_settings.root_path}/rooms', json.dumps(data_room))
+
     file_path = "tests/test-audio.wav"
     with open(file_path, "rb") as f:
         response = client.post(
-            f"{app_settings.root_path}/recordings-file", files={
-                "file": f
-            }
+            f"{app_settings.root_path}/recordings-file",
+            files={"file": f},
+            data={"room_name": "test"}
         )
     assert response.status_code == 201
-    assert len(response.json()["info"]) == 42
+    assert len(response.json()["info"]) == 35
 
 
 def test_get_recording(client):

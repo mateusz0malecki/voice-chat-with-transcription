@@ -30,9 +30,9 @@ async def leave(sid, username, room):
 
 
 @sio.on('startGoogleCloudStream')
-async def start_google_stream(sid, config, token):
+async def start_google_stream(sid, config, token, room):
     print(f'Starting streaming audio data from client {sid}')
-    await GoogleSpeechWrapper.start_recognition_stream(sio, sid, config, token)
+    await GoogleSpeechWrapper.start_recognition_stream(sio, sid, config, token, room)
 
 
 @sio.on('binaryAudioData')
@@ -41,9 +41,9 @@ async def receive_binary_audio_data(sid, message):
 
 
 @sio.on('endGoogleCloudStream')
-async def close_google_stream(sid, token):
+async def close_google_stream(sid, token, room):
     print(f'Closing streaming data from client {sid}')
-    await GoogleSpeechWrapper.stop_recognition_stream(sid, token)
+    await GoogleSpeechWrapper.stop_recognition_stream(sid, token, room)
 
 
 if __name__ == '__main__':

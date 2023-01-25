@@ -13,7 +13,20 @@ def test_empty_db_transcriptions(client):
 
 
 def test_save_stream_transcription(client):
-    data = {"text": "Test test 123."}
+    data_user = {
+        "name": "name",
+        "email": "email@email.com",
+        "password": "password"
+    }
+    client.post(f'{app_settings.root_path}/register', json.dumps(data_user))
+
+    data_room = {"name": "test"}
+    client.post(f'{app_settings.root_path}/rooms', json.dumps(data_room))
+
+    data = {
+        "text": "Test test 123.",
+        "roomName": "test"
+    }
     response = client.post(f'{app_settings.root_path}/transcriptions', json.dumps(data))
     assert response.status_code == 201
 
