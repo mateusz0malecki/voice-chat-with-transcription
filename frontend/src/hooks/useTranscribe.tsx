@@ -24,7 +24,7 @@ let audioContext,
   input: MediaStreamAudioSourceNode,
   globalStream: MediaStream;
   
-const socket = io("https://test-digi-speech2txt.com/sockets/" , {
+const socket = io("http://localhost/" , {
   path: '/sockets/',
 });
 

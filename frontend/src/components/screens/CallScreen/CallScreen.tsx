@@ -6,7 +6,7 @@ import Transcribe from '../../Transcribe/Transcribe'
 import { path } from '../../../helpers/configs'
 import "./callScreen.css";
 
-const socket = socketio("https://test-digi-speech2txt.com/sockets/", {
+const socket = socketio("http://localhost/", {
   autoConnect: false,
   path: '/sockets/',
 });

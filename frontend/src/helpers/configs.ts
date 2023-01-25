@@ -1,5 +1,5 @@
 export const serverEndpoints = {
-    mainPath: 'http://34.116.183.104/api/v1/',
+    mainPath: 'http://localhost/api/v1/',
     login: 'login',
     register: 'register',
 };
