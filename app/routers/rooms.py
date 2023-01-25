@@ -73,7 +73,7 @@ async def create_room(
     db.add(room)
     db.commit()
     db.refresh(room)
-    return {"info": "Room saved"}
+    return {"info": f"Room '{request.name}' saved"}
 
 
 @router.delete(

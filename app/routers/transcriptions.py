@@ -5,12 +5,12 @@ from db.database import get_db
 from sqlalchemy.orm import Session
 from pydantic import parse_obj_as
 from datetime import datetime
-from secrets import token_urlsafe
 
 from models.transcription import Transcription
-from schemas import transcription_schemas, user_schemas
+from models.room import Room
+from schemas import transcription_schemas
 from auth.jwt_helper import get_current_user
-from exceptions.exceptions import TranscriptionNotFound
+from exceptions.exceptions import TranscriptionNotFound, RoomNotFound
 from settings import get_settings
 from utils.autocorrect_nlp import save_autocorrected_text
 
@@ -77,21 +77,26 @@ async def get_all_transcriptions(
 
 @router.post(
     "/transcriptions",
+    dependencies=[Depends(get_current_user)],
     status_code=status.HTTP_201_CREATED
 )
 async def save_stream_transcription(
     background_tasks: BackgroundTasks,
     request: transcription_schemas.TranscriptionPostText,
-    db: Session = Depends(get_db),
-    current_user: user_schemas.User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
+    room = Room.get_room_by_name(db, request.room_name)
+    if not room:
+        raise RoomNotFound(request.room_name)
+
     data_dir = "data/"
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
 
-    transcription_filename = f"{datetime.now().strftime('%d-%m-%Y')}-{current_user.email}-{token_urlsafe(8)}.txt"
+    transcription_filename = f"{datetime.now().strftime('%d-%m-%Y')}-{request.room_name}.txt"
     transcription = Transcription(
         filename=transcription_filename,
+        room_name=request.room_name,
         url=app_settings.domain + app_settings.root_path + "/transcriptions/file/" + transcription_filename,
     )
     db.add(transcription)

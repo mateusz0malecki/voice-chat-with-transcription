@@ -12,6 +12,7 @@ class Transcription(BaseConfig):
 
 class TranscriptionPostText(BaseConfig):
     text: str
+    room_name: str
 
 
 class TranscriptionPagination(CustomPagination):

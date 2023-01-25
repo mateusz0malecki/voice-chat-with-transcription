@@ -6,10 +6,9 @@ from pydub import AudioSegment
 import subprocess
 import os
 from datetime import datetime
-from secrets import token_urlsafe
 
 
-def convert_and_save_file(browser: str, file: bytes):
+def convert_and_save_file(browser: str, file: bytes, room_name: str):
     """
     Converts and saves given audio file in bytes to WAV audio extension.
     """
@@ -17,7 +16,7 @@ def convert_and_save_file(browser: str, file: bytes):
     if not os.path.exists(dir_):
         os.mkdir(dir_)
 
-    filename = f"{datetime.now().strftime('%d-%m-%Y')}-{token_urlsafe(8)}.wav"
+    filename = f"{datetime.now().strftime('%d-%m-%Y')}-{room_name}.wav"
     final_file_location = f"{dir_}/{filename}"
 
     if browser == "chrome":
@@ -37,9 +36,9 @@ def convert_and_save_file(browser: str, file: bytes):
 
     try:
         duration = get_duration(filename=final_file_location)
-    except Exception as E:
+    except Exception as e:
         os.remove(temp_file_location)
-        raise HTTPException(status_code=400, detail="Broken file")
+        raise HTTPException(status_code=400, detail={"info": f"Broken file: {e}"})
 
     os.remove(temp_file_location)
     return filename, final_file_location, duration

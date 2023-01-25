@@ -12,11 +12,12 @@ from pydub import AudioSegment
 
 from db.database import get_db
 from models.recording import Recording
+from models.room import Room
 from utils.audio_files_tasks import convert_to_wav_and_save_file, convert_and_save_file, delete_audio_file
 from schemas import recording_schemas
 from auth.jwt_helper import get_current_user
 from settings import get_settings
-from exceptions.exceptions import RecordingNotFound
+from exceptions.exceptions import RecordingNotFound, RoomNotFound
 
 app_settings = get_settings()
 router = APIRouter(prefix=f"{app_settings.root_path}", tags=["Recordings"])
@@ -30,17 +31,23 @@ router = APIRouter(prefix=f"{app_settings.root_path}", tags=["Recordings"])
 async def upload_recorded_audio_bytes(
         file: bytes = File(),
         browser: str = Form(),
+        room_name: str = Form(),
         db: Session = Depends(get_db)
 ):
+    room = Room.get_room_by_name(db, room_name)
+    if not room:
+        raise RoomNotFound(room_name)
+
     temp_dir = "data/temp/"
     if not os.path.exists(temp_dir):
         os.mkdir(temp_dir)
 
-    new_filename, location, duration = convert_and_save_file(browser, file)
+    new_filename, location, duration = convert_and_save_file(browser, file, room_name)
 
     new_recording = Recording(
         filename=new_filename,
         duration=duration,
+        room_name=room_name,
         url=app_settings.domain + app_settings.root_path + "/recording-file/" + new_filename
     )
     db.add(new_recording)
@@ -56,12 +63,17 @@ async def upload_recorded_audio_bytes(
 )
 async def upload_new_recording_file(
         file: UploadFile,
+        room_name: str = Form(),
         db: Session = Depends(get_db),
 ):
+    room = Room.get_room_by_name(db, room_name)
+    if not room:
+        raise RoomNotFound(room_name)
+
     temp_dir = "data/temp/"
     if not os.path.exists(temp_dir):
         os.makedirs(temp_dir)
-    filename = f"{datetime.now().strftime('%d-%m-%Y')}-{token_urlsafe(8)}" + file.filename[-4:]
+    filename = f"{datetime.now().strftime('%d-%m-%Y')}-{room_name}" + file.filename[-4:]
 
     with open(temp_dir + filename, "wb") as my_file:
         content = await file.read()
@@ -81,6 +93,7 @@ async def upload_new_recording_file(
     new_recording = Recording(
         filename=filename,
         duration=duration,
+        room_name=room_name,
         url=app_settings.domain + app_settings.root_path + "/recordings/file/" + filename
     )
     db.add(new_recording)
