@@ -6,8 +6,9 @@ import Transcribe from '../../Transcribe/Transcribe'
 import { path } from '../../../helpers/configs'
 import "./callScreen.css";
 
-const socket = socketio("http://34.116.183.104/sockets", {
+const socket = socketio("https://test-digi-speech2txt.com/sockets/", {
   autoConnect: false,
+  path: '/sockets/',
 });
 
 const CallScreen = (): JSX.Element => {

@@ -15,7 +15,7 @@
     flex-direction: column;
     width: 80%;
     height: 40vh;
-    height: calc(50%-20px);
+    height: calc(50% - 20px);
     margin-top: 20px;
 }
 
