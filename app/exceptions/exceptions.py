@@ -32,3 +32,11 @@ class TranscriptionNotFound(HTTPException):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Transcription with id '{transcription_id}' not found."
         )
+
+
+class RoomNotFound(HTTPException):
+    def __init__(self, room_name: str):
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Room with name '{room_name}' not found."
+        )

@@ -1,8 +1,9 @@
-from sqlalchemy import Column, Integer, DateTime, String, Float
+from sqlalchemy import Column, Integer, DateTime, String, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from db.database import Base
+from .room import Room
 
 
 class Recording(Base):
@@ -12,6 +13,8 @@ class Recording(Base):
     duration = Column(Float(precision=2), nullable=False, default=0)
     url = Column(String(256), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    room_name = Column(String, ForeignKey("room.name", ondelete='CASCADE'))
+    room = relationship("Room", back_populates="recording")
 
     def __repr__(self):
         return f"<id: {self.id}, length: {self.length}>"
