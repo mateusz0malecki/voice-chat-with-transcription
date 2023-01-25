@@ -45,13 +45,10 @@ async def login_for_access_token(
 )
 async def register(
         response: Response,
-        email: str = Form(''),
-        password: str = Form(''),
-        name: str = Form(''),
+        request: user_schemas.UserCreate,
         db: Session = Depends(get_db),
 ):
-    passwd_hash = Hash.get_password_hash(password)
-    created_user = User(email=email, password=passwd_hash, name=name)
+    created_user = User(**request.dict())
     try:
         db.add(created_user)
         db.commit()

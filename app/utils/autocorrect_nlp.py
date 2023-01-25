@@ -53,6 +53,10 @@ def save_autocorrected_text(text: str, transcription_filename: str, directory: s
     with open(directory + transcription_filename, 'a') as file:
         text_list = text.split('\n')
         for text in text_list:
-            text_ = text.split('] ')
+            text_ = text.split(' - ')
             if len(text_) > 1:
-                file.write(f"{text_[0]}] {autocorrect_with_punctuation(text_[1]).replace('. .', '.')}\n")
+                text_with_punctuation = autocorrect_with_punctuation(text_[3])
+                file.write(
+                    f"{text_[0]} - {text_[1]} - {text_[2]} - "
+                    f"{text_with_punctuation.replace('. .', '.')}\n"
+                )

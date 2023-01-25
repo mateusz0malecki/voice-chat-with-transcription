@@ -181,13 +181,6 @@ async def delete_recording(
     except Exception as e:
         print({"Error": e})
 
-    if recording_to_delete.transcription:
-        transcription_file_path = app_settings.recordings_path + recording_to_delete.filename.split('.')[0] + '.txt'
-        try:
-            os.remove(transcription_file_path)
-        except Exception as e:
-            print({"Error": e})
-
     db.delete(recording_to_delete)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)

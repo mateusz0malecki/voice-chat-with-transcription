@@ -6,7 +6,7 @@ from cloud_transcript_stream import GoogleSpeechWrapper
 app = web.Application()
 sio = socketio.AsyncServer(cors_allowed_origins='*')
 
-sio.attach(app)
+sio.attach(app, socketio_path='/sockets/')
 
 
 @sio.on('join')

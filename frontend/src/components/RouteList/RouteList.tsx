@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 // import CallScreen from '../Screens/CallScreen/CallScreen'
 // import HomeScreen from "../Screens/HomeScreen/HomeScreen";
 import SignIn from "../SignIn/SignIn";
-import SignUp from '../SignUp/SignUp'
+import SignUp from "../SignUp/SignUp"
 
 import CallScreen from '@/components/Screens/CallScreen/CallScreen';
 import HomeScreen from "@/components/Screens/HomeScreen/HomeScreen";

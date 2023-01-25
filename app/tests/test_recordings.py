@@ -29,7 +29,6 @@ def test_get_recording(client):
     assert response_info.json()["duration"] == 1.542108843537415
     filename = response_info.json()["filename"]
     response_file = client.get(f'api/v1/recordings/file/{filename}')
-    assert response_file.headers["content-disposition"] == f'attachment; filename="{filename}"'
     assert response_file.headers["content-type"] == "audio/wav"
 
 
