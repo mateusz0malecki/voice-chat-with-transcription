@@ -9,7 +9,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx-server/dist:/html/front
+      - ./dhparam:/etc/letsencrypt/dhparam
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
       - ./certbot/data:/usr/share/nginx/html/letsencrypt
