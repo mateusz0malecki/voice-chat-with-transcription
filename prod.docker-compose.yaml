@@ -46,6 +46,7 @@ services:
       - ./nginx-server/dist:/html/front
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
+      - ./certbot/data:/usr/share/nginx/html/letsencrypt
 
 volumes:
   db_data:
