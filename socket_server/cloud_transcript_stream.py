@@ -1,4 +1,3 @@
-import sys
 import os
 import asyncio
 import queue
@@ -25,12 +24,13 @@ class ClientData:
         self.audio_config = config['audio']
         self.transcription_text = ''
 
-    async def close(self, token: str):
+    async def close(self, token: str, room: str):
         requests.post(
             url="http://app:8000/api/v1/transcriptions",
             data=json.dumps(
                 {
-                    "text": self.transcription_text
+                    "text": self.transcription_text,
+                    "roomName": room
                 }
             ),
             headers={
@@ -89,12 +89,9 @@ async def listen_print_loop(responses, client: ClientData, username):
         text = transcript.lower().strip() + overwrite_chars.lower().strip()
 
         if not result.is_final:
-            # sys.stdout.write(transcript + overwrite_chars + "\r\n")
-            # sys.stdout.flush()
             interim_flush_counter += 1
             if client and interim_flush_counter % 3 == 0:
                 interim_flush_counter = 0
-                # await client.send_client_data(text + "\r\n", False)
             num_chars_printed = len(transcript)
         else:
             if client:
@@ -135,15 +132,15 @@ class GoogleSpeechWrapper:
 
     @staticmethod
     async def start_recognition_stream(sio, client_id: str, config: Dict, token: str, room: str):
-        response = requests.get(
+        user_response = requests.get(
             url="http://app:8000/api/v1/me",
             headers={
                 "Authorization": f"Bearer {token}"
             }
         )
-        if response.status_code == 200:
-            email = response.json()["email"]
-            username = response.json()["name"]
+        if user_response.status_code == 200:
+            email = user_response.json()["email"]
+            username = user_response.json()["name"]
             if email not in users:
                 if client_id not in clients:
                     users.append(email)
@@ -156,6 +153,31 @@ class GoogleSpeechWrapper:
                         config
                     )
                     clients[client_id].start_transcribing()
+                    response = requests.get(
+                        url=f"http://app:8000/api/v1/rooms/{room}",
+                        headers={
+                            "Authorization": f"Bearer {token}"
+                        }
+                    )
+                    if response.status_code == 404:
+                        requests.post(
+                            url=f"http://app:8000/api/v1/rooms",
+                            headers={
+                                "Authorization": f"Bearer {token}"
+                            },
+                            data=json.dumps(
+                                {
+                                    "name": room
+                                }
+                            )
+                        )
+                    elif response.status_code == 200:
+                        requests.put(
+                            url=f"http://app:8000/api/v1/rooms/{room}",
+                            headers={
+                                "Authorization": f"Bearer {token}"
+                            }
+                        )
                 else:
                     print('Warning - already running transcription for client')
             else:
@@ -175,7 +197,7 @@ class GoogleSpeechWrapper:
             email = response.json()["email"]
             if email in users:
                 if client_id in clients:
-                    await clients[client_id].close(token)
+                    await clients[client_id].close(token, room)
                     del clients[client_id]
                     users.remove(email)
 
