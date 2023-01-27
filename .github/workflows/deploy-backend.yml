@@ -6,7 +6,7 @@ on:
     paths:
       - 'app/**'
       - 'socket_server/**'
-      - 'nginx_server/**'
+      - 'nginx-server/**'
       - 'docker-compose.yaml'
       - 'cert.docker-compose.yaml'
       - 'prod.docker-compose.yaml'
@@ -15,7 +15,7 @@ on:
     paths:
       - 'app/**'
       - 'socket_server/**'
-      - 'nginx_server/**'
+      - 'nginx-server/**'
       - 'docker-compose.yaml'
       - 'cert.docker-compose.yaml'
       - 'prod.docker-compose.yaml'
