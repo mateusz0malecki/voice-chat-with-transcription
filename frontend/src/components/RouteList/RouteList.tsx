@@ -4,8 +4,8 @@ import { Routes, Route } from "react-router-dom";
 import SignIn from "../SignIn/SignIn";
 import SignUp from "../SignUp/SignUp"
 
-import CallScreen from '../components/screens/CallScreen/CallScreen';
-import HomeScreen from "../components/screens/HomeScreen/HomeScreen";
+import CallScreen from '../screens/CallScreen/CallScreen';
+import HomeScreen from "../screens/HomeScreen/HomeScreen";
 
 import { path } from '../../helpers/configs'
 
