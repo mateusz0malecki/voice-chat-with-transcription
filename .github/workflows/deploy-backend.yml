@@ -1,0 +1,59 @@
+name: Deploy backend
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - 'app/**'
+      - 'socket_server/**'
+      - 'nginx_server/**'
+      - 'docker-compose.yaml'
+      - 'cert.docker-compose.yaml'
+      - 'prod.docker-compose.yaml'
+  pull_request:
+    branches: [ "master" ]
+    paths:
+      - 'app/**'
+      - 'socket_server/**'
+      - 'nginx_server/**'
+      - 'docker-compose.yaml'
+      - 'cert.docker-compose.yaml'
+      - 'prod.docker-compose.yaml'
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  PROJECT_ID: complete-road-374207
+  GCE_INSTANCE_NAME: speech2txt
+  GCE_INSTANCE_ZONE: europe-west3-c
+
+jobs:
+  deploy-backend:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          service_account_email: ${{ secrets.GCP_EMAIL }}
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Pull changes
+        run: |
+          gcloud compute ssh --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd voice-chat-with-transcription && git pull"
+
+      - name: Stop containers
+        run: |
+          gcloud compute ssh --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd voice-chat-with-transcription && sudo docker-compose -f prod.docker-compose.yaml down"
+
+      - name: Start containers
+        run: |
+          gcloud compute ssh --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd voice-chat-with-transcription && sudo docker-compose -f prod.docker-compose.yaml up -d"
