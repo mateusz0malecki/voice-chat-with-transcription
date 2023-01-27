@@ -49,7 +49,7 @@ jobs:
 
       - name: Pull changes
         run: |
-          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription && sudo git config --global --add safe.directory /home/mateusz830sdc/voice-chat-with-transcription && git pull"
+          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription && sudo git config --global --add safe.directory /home/mateusz830sdc/voice-chat-with-transcription && sudo git pull"
 
       - name: Stop containers
         run: |
