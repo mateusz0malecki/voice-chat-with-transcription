@@ -47,4 +47,4 @@ jobs:
 
       - name: Move new build to nginx
         run: |
-          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription && sudo mv frontend/dist nginx-server/dist"
+          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription && sudo rm -rf nginx-server/dist && sudo mv frontend/dist nginx-server"
