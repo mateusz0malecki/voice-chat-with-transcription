@@ -48,3 +48,11 @@ jobs:
       - name: Move new build to nginx
         run: |
           gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription && sudo rm -rf nginx-server/dist && sudo mv frontend/dist nginx-server"
+
+      - name: Stop containers
+        run: |
+          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription && sudo docker-compose -f prod.docker-compose.yaml down"
+
+      - name: Start containers
+        run: |
+          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription && sudo docker-compose -f prod.docker-compose.yaml up -d"
