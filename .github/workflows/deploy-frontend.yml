@@ -39,12 +39,12 @@ jobs:
 
       - name: Pull changes
         run: |
-          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="ls && git pull"
+          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription && git pull"
 
       - name: Build
         run: |
-          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="ls && sudo npm install && sudo npm run build"
+          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription/frontend && sudo npm install && sudo npm run build"
 
       - name: Move new build to nginx
         run: |
-          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="ls && sudo mv frontend/dist nginx-server/dist"
+          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription && sudo mv frontend/dist nginx-server/dist"
