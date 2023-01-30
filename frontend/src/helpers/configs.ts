@@ -2,7 +2,8 @@ export const serverEndpoints = {
     mainPath: 'http://localhost/api/v1/',
     login: 'login',
     register: 'register',
-    recording: 'recordings-file',
+    recording: 'recordings',
+    transcriptions: 'transcriptions?page=1&page_size=10',
 };
 
 export const path = {

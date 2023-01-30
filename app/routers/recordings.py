@@ -24,7 +24,7 @@ router = APIRouter(prefix=f"{app_settings.root_path}", tags=["Recordings"])
 
 
 @router.post(
-    "/recording",
+    "/recordings",
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(get_current_user)]
 )

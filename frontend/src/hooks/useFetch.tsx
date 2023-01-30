@@ -13,7 +13,7 @@ export interface RecordData {
 const useFetch = () => {
     const { getLocalStorage } = useLocalStorage();
     const { access_token } = getLocalStorage() || {};
-    const { login, register, recording } = serverEndpoints;
+    const { login, register, recording, transcriptions} = serverEndpoints;
 
     const userSignIn = (userData: URLSearchParams): Promise<SignInAndUpResponse> => {
         const additionalPath = login;
@@ -46,7 +46,18 @@ const useFetch = () => {
         return _fetch({additionalPath, options});
     };
 
-    return { userSignIn, userSignUp, sendRecord }
+    const getTranscription = () => {
+        // const additionalPath = `transcriptions/file/${filename}`
+        const additionalPath = transcriptions;
+        const options = { 
+            method: 'GET', 
+            headers: { Authorization: `Bearer ${access_token}` } 
+        };
+
+        return _fetch({additionalPath, options});
+    }
+
+    return { userSignIn, userSignUp, sendRecord , getTranscription}
 }
 
 export default useFetch;

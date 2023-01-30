@@ -61,6 +61,7 @@ const useMediaRecorder = (): MediaRecorderData => {
                     console.log('newBlob' , newBlob)
                     const recordData = new FormData();
                     recordData.append('room_name' , room);
+                    recordData.append('browser' , browserName);
                     recordData.append('file' , newBlob);
                     sendRecord(recordData)
 
@@ -73,12 +74,10 @@ const useMediaRecorder = (): MediaRecorderData => {
     };
 
     const startRecordingAudio = (): void => {
-        console.log('aaaaaaaaaaaaaamediaRecorder0' , mediaRecorder )
         mediaRecorder.start();
     }
 
     const stopRecordingAudio = (): void => {
-        console.log('aaaaaaaaaaaaaamediaRecorder1' , mediaRecorder )
         mediaRecorder.stop();
     }
 
@@ -93,7 +92,6 @@ const useMediaRecorder = (): MediaRecorderData => {
     }
 
     const prepereRecord = (): Blob => {
-        console.log('audioBlob' , audioBlob)
         return audioBlob;
     }
 
