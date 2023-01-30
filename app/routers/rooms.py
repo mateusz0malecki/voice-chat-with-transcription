@@ -18,14 +18,14 @@ router = APIRouter(prefix=f"{app_settings.root_path}", tags=["Rooms"])
 @router.get(
     "/rooms/{room_name}",
     status_code=status.HTTP_200_OK,
-    response_model=room_schemas.Room,
-    dependencies=[Depends(get_current_user)]
+    response_model=room_schemas.Room
 )
 async def get_room_info(
         room_name: str,
+        current_user: user_schemas.User = Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
-    room = Room.get_room_by_name(db, room_name)
+    room = Room.get_room_by_name(db, room_name, current_user)
     if not room:
         raise RoomNotFound(room_name)
     return room
@@ -33,15 +33,15 @@ async def get_room_info(
 
 @router.get(
     "/rooms",
-    status_code=status.HTTP_200_OK,
-    dependencies=[Depends(get_current_user)]
+    status_code=status.HTTP_200_OK
 )
 async def get_all_rooms(
         db: Session = Depends(get_db),
+        current_user: user_schemas.User = Depends(get_current_user),
         page: int = 1,
         page_size: int = 10
 ):
-    rooms = Room.get_all_rooms(db)
+    rooms = Room.get_all_rooms(db, current_user)
     first = (page - 1) * page_size
     last = first + page_size
     rooms_model = parse_obj_as(list[room_schemas.Room], rooms)
@@ -77,14 +77,14 @@ async def create_room(
 
 
 @router.delete(
-    "/rooms/{room_name}",
-    dependencies=[Depends(get_current_user)]
+    "/rooms/{room_name}"
 )
 async def delete_room(
         room_name: str,
+        current_user: user_schemas.User = Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
-    room_to_delete = Room.get_room_by_name(db, room_name)
+    room_to_delete = Room.get_room_by_name(db, room_name, current_user)
     if not room_to_delete:
         raise RoomNotFound
 
@@ -116,7 +116,7 @@ async def add_user_to_room(
         current_user: user_schemas.User = Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
-    room_to_edit = Room.get_room_by_name(db, room_name)
+    room_to_edit = Room.get_room_by_name(db, room_name, current_user)
     if not room_to_edit:
         raise RoomNotFound
 

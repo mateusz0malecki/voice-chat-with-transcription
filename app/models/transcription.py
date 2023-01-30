@@ -19,13 +19,15 @@ class Transcription(Base):
         return f"<id: {self.id}, recording-id: {self.recording_id}>"
 
     @staticmethod
-    def get_all_transcriptions(db):
-        return db.query(Transcription).all()
+    def get_all_transcriptions(db, user):
+        return db.query(Transcription).join(Room).filter(Room.users.contains(user)).all()
 
     @staticmethod
-    def get_transcription_by_id(db, transcription_id):
-        return db.query(Transcription).filter(Transcription.id == transcription_id).first()
+    def get_transcription_by_id(db, transcription_id, user):
+        return db.query(Transcription).filter(Transcription.id == transcription_id)\
+            .join(Room).filter(Room.users.contains(user)).first()
 
     @staticmethod
-    def get_transcription_by_filename(db, filename):
-        return db.query(Transcription).filter(Transcription.filename == filename).first()
+    def get_transcription_by_filename(db, filename, user):
+        return db.query(Transcription).filter(Transcription.filename == filename)\
+            .join(Room).filter(Room.users.contains(user)).first()

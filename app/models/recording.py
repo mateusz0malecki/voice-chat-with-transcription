@@ -20,9 +20,15 @@ class Recording(Base):
         return f"<id: {self.id}, length: {self.length}>"
 
     @staticmethod
-    def get_all_recordings(db):
-        return db.query(Recording).all()
+    def get_all_recordings(db, user):
+        return db.query(Recording).join(Room).filter(Room.users.contains(user)).all()
 
     @staticmethod
-    def get_recording_by_id(db, recording_id):
-        return db.query(Recording).filter(Recording.id == recording_id).first()
+    def get_recording_by_id(db, recording_id, user):
+        return db.query(Recording).filter(Recording.id == recording_id)\
+            .join(Room).filter(Room.users.contains(user)).first()
+
+    @staticmethod
+    def get_recording_by_filename(db, filename, user):
+        return db.query(Recording).filter(Recording.filename == filename)\
+            .join(Room).filter(Room.users.contains(user)).first()
