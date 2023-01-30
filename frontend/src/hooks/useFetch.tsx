@@ -1,12 +1,19 @@
 import { _fetch } from '../helpers/fetchProvider';
 import { serverEndpoints } from '../helpers/configs';
+import useLocalStorage from './useLocalStorage';
 
 interface SignInAndUpResponse {
     "access_token": string;
 }
 
+export interface RecordData {
+    "info": "string"
+}
+
 const useFetch = () => {
-    const { login, register } = serverEndpoints;
+    const { getLocalStorage } = useLocalStorage();
+    const { access_token } = getLocalStorage() || {};
+    const { login, register, recording } = serverEndpoints;
 
     const userSignIn = (userData: URLSearchParams): Promise<SignInAndUpResponse> => {
         const additionalPath = login;
@@ -28,7 +35,18 @@ const useFetch = () => {
         return _fetch({ additionalPath, options })
     };
 
-    return { userSignIn, userSignUp }
+    const sendRecord = (recordData: FormData): Promise<RecordData> => {
+        const additionalPath = recording;
+        const options = { 
+            method: 'POST', 
+            body: recordData, 
+            headers: { Authorization: `Bearer ${access_token}` } 
+        };
+
+        return _fetch({additionalPath, options});
+    };
+
+    return { userSignIn, userSignUp, sendRecord }
 }
 
 export default useFetch;

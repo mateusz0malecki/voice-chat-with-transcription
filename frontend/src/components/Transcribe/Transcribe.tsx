@@ -12,7 +12,12 @@ interface TranscriptionConfig {
   interimResults: boolean;
 }
 
-const Transribe = ( {isTranscript, leaveAction}: {isTranscript: boolean, leaveAction: boolean}): JSX.Element => {
+interface Transcribe {
+  isTranscript: boolean;
+  leaveAction: boolean;
+}
+
+const Transribe = ( {isTranscript, leaveAction}: Transcribe ): JSX.Element => {
   const [transcribedData, setTranscribedData] = React.useState([]);
   const [interimTranscribedData, setInterimTranscribedData] = React.useState("");
   const [initRecording, stopRecording] = useTranscribe();

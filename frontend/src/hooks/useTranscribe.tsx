@@ -1,9 +1,11 @@
 import React from "react";
 import { io } from "socket.io-client";
+import { useParams } from "react-router-dom";
 
 //@ts-ignore
 import recorderProcessor from "../utils/recorder-processor";
 import useLocalStorage from "./useLocalStorage";
+import useMediaRecorder  from './useMediaRecorder';
 
 interface TranscriptionConfig {
   audio: {
@@ -30,8 +32,12 @@ const socket = io("http://localhost/" , {
 
 const useTranscribe = () => {
   const { getLocalStorage } = useLocalStorage();
+   const { startRecordingAudio, stopRecordingAudio, clearMediaRecorderState } = useMediaRecorder();
+  
+  const params = useParams();
 
   const { access_token } = getLocalStorage();
+  const { room } = params;
 
   const mediaConstraints = {
     audio: true,
@@ -39,7 +45,7 @@ const useTranscribe = () => {
   };
 
   const initRecording = async (transcribeConfig: TranscriptionConfig, handleDataRecived: DataRecieved): Promise<void> => {
-    socket.emit("startGoogleCloudStream", { ...transcribeConfig }, access_token);
+    socket.emit("startGoogleCloudStream", { ...transcribeConfig }, access_token, room);
 
     audioContext = window.AudioContext;
     context = new AudioContext();
@@ -63,7 +69,10 @@ const useTranscribe = () => {
         worklet.port.onmessage = (e) => {
           socket.emit("binaryAudioData", e.data);
         };
-      });
+      })
+      .then( () => {
+        startRecordingAudio();
+      })
 
     if (handleDataRecived) {
       socket.on("speechData", (response) => {
@@ -73,8 +82,11 @@ const useTranscribe = () => {
   };
 
   const stopRecording = (): void => {
-    socket.emit("endGoogleCloudStream", access_token);
+    socket.emit("endGoogleCloudStream", access_token, room);
     closeAll();
+
+    stopRecordingAudio();
+    clearMediaRecorderState();
   };
 
   const closeAll = () => {
