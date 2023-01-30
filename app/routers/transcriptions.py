@@ -21,13 +21,23 @@ router = APIRouter(prefix=f"{app_settings.root_path}", tags=["Transcriptions"])
 @router.get(
     "/transcriptions/file/{filename}",
     status_code=status.HTTP_200_OK,
+    response_model=transcription_schemas.TranscriptionText,
     dependencies=[Depends(get_current_user)]
 )
-async def get_transcription_file(filename: str):
+async def get_transcription_file(
+        filename: str,
+        db: Session = Depends(get_db)
+):
     dir_ = app_settings.transcriptions_path
     file_path = os.path.join(dir_, filename)
-    if os.path.exists(file_path):
-        return FileResponse(file_path, media_type="text/html", filename=filename)
+    transcription = Transcription.get_transcription_by_filename(db, filename)
+    if transcription and os.path.exists(file_path):
+        with open(file_path, "r") as file:
+            file_text = file.read()
+        return {
+            "room_name": transcription.room_name,
+            "text": file_text
+        }
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail="File not found."
@@ -82,7 +92,7 @@ async def get_all_transcriptions(
 )
 async def save_stream_transcription(
     background_tasks: BackgroundTasks,
-    request: transcription_schemas.TranscriptionPostText,
+    request: transcription_schemas.TranscriptionText,
     db: Session = Depends(get_db)
 ):
     room = Room.get_room_by_name(db, request.room_name)

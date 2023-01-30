@@ -1,5 +1,5 @@
 export const serverEndpoints = {
-    mainPath: 'http://localhost/api/v1/',
+    mainPath: 'https://digimonkeys-speech2txt.com/api/v1/',
     login: 'login',
     register: 'register',
     recording: 'recordings',

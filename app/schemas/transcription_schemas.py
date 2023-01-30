@@ -10,7 +10,7 @@ class Transcription(BaseConfig):
     created_at: Optional[datetime]
 
 
-class TranscriptionPostText(BaseConfig):
+class TranscriptionText(BaseConfig):
     text: str
     room_name: str
 

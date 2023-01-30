@@ -1,0 +1,58 @@
+name: Deploy frontend
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - 'frontend/**'
+  pull_request:
+    branches: [ "master" ]
+    paths:
+      - 'frontend/**'
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  PROJECT_ID: complete-road-374207
+  GCE_INSTANCE_NAME: speech2txt
+  GCE_INSTANCE_ZONE: europe-west3-c
+
+jobs:
+  deploy-frontend:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          service_account_email: ${{ secrets.GCP_EMAIL }}
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Pull changes
+        run: |
+          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription && sudo git config --global --add safe.directory /home/mateusz830sdc/voice-chat-with-transcription && sudo git pull"
+
+      - name: Build
+        run: |
+          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription/frontend && sudo npm install && sudo npm run build"
+
+      - name: Move new build to nginx
+        run: |
+          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription && sudo rm -rf nginx-server/dist && sudo mv frontend/dist nginx-server"
+
+      - name: Stop containers
+        run: |
+          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription && sudo docker-compose -f prod.docker-compose.yaml down"
+
+      - name: Start containers
+        run: |
+          gcloud compute ssh --project ${{ env.PROJECT_ID }} --zone ${{ env.GCE_INSTANCE_ZONE }} ${{ env.GCE_INSTANCE_NAME }} --command="cd /home/mateusz830sdc/voice-chat-with-transcription && sudo docker-compose -f prod.docker-compose.yaml up -d"

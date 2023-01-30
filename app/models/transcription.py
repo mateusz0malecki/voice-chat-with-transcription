@@ -25,3 +25,7 @@ class Transcription(Base):
     @staticmethod
     def get_transcription_by_id(db, transcription_id):
         return db.query(Transcription).filter(Transcription.id == transcription_id).first()
+
+    @staticmethod
+    def get_transcription_by_filename(db, filename):
+        return db.query(Transcription).filter(Transcription.filename == filename).first()
