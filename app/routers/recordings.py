@@ -24,7 +24,7 @@ router = APIRouter(prefix=f"{app_settings.root_path}", tags=["Recordings"])
 
 
 @router.post(
-    "/recording",
+    "/recordings",
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(get_current_user)]
 )
@@ -54,52 +54,6 @@ async def upload_recorded_audio_bytes(
     db.commit()
     db.refresh(new_recording)
     return {"info": f"file saved at '{location}'"}
-
-
-@router.post(
-    "/recordings-file",
-    status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(get_current_user)]
-)
-async def upload_new_recording_file(
-        file: UploadFile,
-        room_name: str = Form(),
-        db: Session = Depends(get_db),
-):
-    room = Room.get_room_by_name(db, room_name)
-    if not room:
-        raise RoomNotFound(room_name)
-
-    temp_dir = "data/temp/"
-    if not os.path.exists(temp_dir):
-        os.makedirs(temp_dir)
-    filename = f"{datetime.now().strftime('%d-%m-%Y')}-{room_name}" + file.filename[-4:]
-
-    with open(temp_dir + filename, "wb") as my_file:
-        content = await file.read()
-        my_file.write(content)
-        my_file.close()
-
-    if file.filename.endswith(".wav"):
-        dir_ = app_settings.recordings_path
-        if not os.path.exists(dir_):
-            os.mkdir(dir_)
-        shutil.copyfile(temp_dir + filename, dir_ + filename)
-        duration = get_duration(filename=temp_dir + filename)
-    else:
-        filename, duration = convert_to_wav_and_save_file(temp_dir, filename)
-    os.remove(temp_dir + filename)
-
-    new_recording = Recording(
-        filename=filename,
-        duration=duration,
-        room_name=room_name,
-        url=app_settings.domain + app_settings.root_path + "/recordings/file/" + filename
-    )
-    db.add(new_recording)
-    db.commit()
-    db.refresh(new_recording)
-    return {"info": f"File saved as '{filename}'"}
 
 
 @router.get(
