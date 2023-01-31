@@ -22,7 +22,7 @@ async def send_email_reset_password(email: list, reset_code: str):
     msg = f"""
         Someone requested a link to reset your password. If it wasn't you, please ignore this email.
         
-        http://localhost:8000/reset-password?reset_token={reset_code}
+        http://{app_settings.domain}/reset-password?reset_token={reset_code}
         
         Your password won't change until you access the link and create a new one.
         The link has expiry time so do not wait to long to hit it!
