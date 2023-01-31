@@ -35,9 +35,9 @@ async def read_user(
     dependencies=[Depends(get_current_user)]
 )
 async def read_all_users(
-    db: Session = Depends(get_db),
-    page: int = 1,
-    page_size: int = 10
+        db: Session = Depends(get_db),
+        page: int = 1,
+        page_size: int = 10
 ):
     users = User.get_all_users(db)
     first = (page - 1) * page_size
