@@ -33,23 +33,26 @@ Rename it to sa-key.json and place it in two directories: **app/** and **socket_
 1. Change email and domain in docker-compose yaml files to match yours.
 2. Change domain name on nginx-server/prod.nginx.conf file to match yours.
 3. Start docker-compose yaml file that creates SSL certificate:
-    
 
-    docker-compose -f cert.docker-compose.yaml up --build -d
+```
+docker-compose -f cert.docker-compose.yaml up --build -d
+```
+
 4. Stop containers after certificate creation:
 
+```
+docker-compose -f cert.docker-compose.yaml down
+```
 
-    docker-compose -f cert.docker-compose.yaml down
 5. Start docker-compose yaml file with app containers:
 
-
-    docker-compose -f prod.docker-compose.yaml up --build -d
+```
+docker-compose -f prod.docker-compose.yaml up --build -d
+```
 
 #### Installation on development environment
 1. Start docker-compose development yaml file:
 
-
-    docker-compose up --build -d
-
-
-
+```
+docker-compose up --build -d
+```
