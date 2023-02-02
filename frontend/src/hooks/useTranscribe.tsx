@@ -67,8 +67,12 @@ const useTranscribe = () => {
         input.connect(worklet);
 
         worklet.port.onmessage = (e) => {
+        };
+
+        worklet.port.onmessage = (e) => {
           socket.emit("binaryAudioData", e.data);
         };
+        
       })
       .then( () => {
         startRecordingAudio();

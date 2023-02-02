@@ -53,8 +53,8 @@ const CallScreen = (): JSX.Element => {
   });
 
   socket.on("data", (data) => {
-    signalingDataHandler(data, socket.id);
     setIsTranscript(true);
+    signalingDataHandler(data, socket.id);
   });
 
   socket.on("leave", (data) => {
