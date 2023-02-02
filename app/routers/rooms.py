@@ -25,7 +25,7 @@ async def get_room_info(
         current_user: user_schemas.User = Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
-    room = Room.get_room_by_name(db, room_name, current_user)
+    room = Room.get_room_by_name_for_user(db, room_name, current_user)
     if not room:
         raise RoomNotFound(room_name)
     return room
@@ -41,7 +41,7 @@ async def get_all_rooms(
         page: int = 1,
         page_size: int = 10
 ):
-    rooms = Room.get_all_rooms(db, current_user)
+    rooms = Room.get_all_rooms_for_user(db, current_user)
     first = (page - 1) * page_size
     last = first + page_size
     rooms_model = parse_obj_as(list[room_schemas.Room], rooms)
@@ -61,10 +61,9 @@ async def get_all_rooms(
 )
 async def get_room_info(
         room_name: str,
-        current_user: user_schemas.User = Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
-    room = Room.get_room_by_name(db, room_name, current_user)
+    room = Room.get_room_by_name(db, room_name)
     if not room:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
     return Response(status_code=status.HTTP_200_OK)
@@ -98,7 +97,7 @@ async def delete_room(
         current_user: user_schemas.User = Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
-    room_to_delete = Room.get_room_by_name(db, room_name, current_user)
+    room_to_delete = Room.get_room_by_name_for_user(db, room_name, current_user)
     if not room_to_delete:
         raise RoomNotFound
 
@@ -130,7 +129,7 @@ async def add_user_to_room(
         current_user: user_schemas.User = Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
-    room_to_edit = Room.get_room_by_name(db, room_name, current_user)
+    room_to_edit = Room.get_room_by_name_for_user(db, room_name, current_user)
     if not room_to_edit:
         raise RoomNotFound
 

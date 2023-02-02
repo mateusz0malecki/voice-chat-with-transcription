@@ -36,9 +36,13 @@ class Room(Base):
     )
 
     @staticmethod
-    def get_all_rooms(db, user):
+    def get_all_rooms_for_user(db, user):
         return db.query(Room).filter(Room.users.contains(user)).all()
 
     @staticmethod
-    def get_room_by_name(db, room_name, user):
+    def get_room_by_name_for_user(db, room_name, user):
         return db.query(Room).filter(Room.name == room_name).filter(Room.users.contains(user)).first()
+
+    @staticmethod
+    def get_room_by_name(db, room_name):
+        return db.query(Room).filter(Room.name == room_name).first()
