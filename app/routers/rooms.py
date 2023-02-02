@@ -56,6 +56,20 @@ async def get_all_rooms(
     return response
 
 
+@router.get(
+    "/rooms/info/{room_name}"
+)
+async def get_room_info(
+        room_name: str,
+        current_user: user_schemas.User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    room = Room.get_room_by_name(db, room_name, current_user)
+    if not room:
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+    return Response(status_code=status.HTTP_200_OK)
+
+
 @router.post(
     "/rooms",
     status_code=status.HTTP_201_CREATED

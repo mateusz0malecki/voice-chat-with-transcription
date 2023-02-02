@@ -154,7 +154,7 @@ class GoogleSpeechWrapper:
                     )
                     clients[client_id].start_transcribing()
                     response = requests.get(
-                        url=f"http://app:8000/api/v1/rooms/{room}",
+                        url=f"http://app:8000/api/v1/rooms/info/{room}",
                         headers={
                             "Authorization": f"Bearer {token}"
                         }
