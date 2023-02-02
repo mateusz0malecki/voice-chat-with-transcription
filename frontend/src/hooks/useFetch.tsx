@@ -10,6 +10,11 @@ export interface RecordData {
     "info": "string"
 }
 
+interface TranscrieReponse {
+  text: string;
+  roomName: string;
+};
+
 const useFetch = () => {
     const { getLocalStorage } = useLocalStorage();
     const { access_token } = getLocalStorage() || {};
@@ -56,7 +61,7 @@ const useFetch = () => {
         return _fetch({additionalPath, options});
     }
 
-    const getRecording = (filename: string) => {
+    const getRecording = (filename: string): Promise<Blob | void> => {
         const { mainPath } = serverEndpoints;
         const additionalPath = `recordings/file/${filename}`;
         const options = { 
@@ -74,7 +79,7 @@ const useFetch = () => {
             .catch((err) => console.log('error' , err) );
     }
 
-    const getTranscribe = (filename: string) => {
+    const getTranscribe = (filename: string): Promise<TranscrieReponse> => {
         const additionalPath = `transcriptions/file/${filename}`;
         const options = { 
             method: 'GET', 
