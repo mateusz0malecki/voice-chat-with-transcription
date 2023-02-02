@@ -46,7 +46,6 @@ const useTranscribe = () => {
 
   const initRecording = async (transcribeConfig: TranscriptionConfig, handleDataRecived: DataRecieved): Promise<void> => {
     socket.emit("startGoogleCloudStream", { ...transcribeConfig }, access_token, room);
-    console.log('Google start stream emit')
 
     audioContext = window.AudioContext;
     context = new AudioContext();
@@ -69,16 +68,8 @@ const useTranscribe = () => {
 
         worklet.port.onmessage = (e) => {
         };
-
+        
         worklet.port.onmessage = (e) => {
-          console.log('firstlog')
-          console.log('firstlog e.data' , e.data )
-        };
-
-        worklet.port.onmessage = (e) => {
-          console.log('second log')
-          console.log('second log e.data' , e.data)
-
           setTimeout(() => {
             socket.emit("binaryAudioData", e.data);
           }, 10)

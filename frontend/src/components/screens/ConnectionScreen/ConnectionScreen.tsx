@@ -48,13 +48,11 @@ const CallScreen = (): JSX.Element => {
   // React.useEffect(() => {},[isTranscript])
   
   socket.on("ready", () => {
-    console.log('emit ready')
     createPeerConnection(socket.id);
     sendOffer(socket.id);
   });
   
   socket.on("data", (data) => {
-    console.log('emit data')
     signalingDataHandler(data, socket.id);
     setIsTranscript(true);
   });
