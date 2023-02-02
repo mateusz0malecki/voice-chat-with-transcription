@@ -13,7 +13,7 @@ export interface RecordData {
 const useFetch = () => {
     const { getLocalStorage } = useLocalStorage();
     const { access_token } = getLocalStorage() || {};
-    const { login, register, recording, transcriptions} = serverEndpoints;
+    const { login, register, recording, rooms, transcriptions } = serverEndpoints;
 
     const userSignIn = (userData: URLSearchParams): Promise<SignInAndUpResponse> => {
         const additionalPath = login;
@@ -46,9 +46,8 @@ const useFetch = () => {
         return _fetch({additionalPath, options});
     };
 
-    const getTranscription = () => {
-        // const additionalPath = `transcriptions/file/${filename}`
-        const additionalPath = transcriptions;
+    const getUserRoomsData = () => {
+        const additionalPath = rooms;
         const options = { 
             method: 'GET', 
             headers: { Authorization: `Bearer ${access_token}` } 
@@ -57,7 +56,35 @@ const useFetch = () => {
         return _fetch({additionalPath, options});
     }
 
-    return { userSignIn, userSignUp, sendRecord , getTranscription}
+    const getRecording = (filename: string) => {
+        const { mainPath } = serverEndpoints;
+        const additionalPath = `recordings/file/${filename}`;
+        const options = { 
+            method: 'GET', 
+            headers: { Authorization: `Bearer ${access_token}` } 
+        };
+        const url = mainPath + additionalPath;
+
+        return fetch(url, options)
+            .then((resp) => {
+                if (resp.ok) return resp.blob();
+            
+                return Promise.reject(resp);
+            })
+            .catch((err) => console.log('error' , err) );
+    }
+
+    const getTranscribe = (filename: string) => {
+        const additionalPath = `transcriptions/file/${filename}`;
+        const options = { 
+            method: 'GET', 
+            headers: { Authorization: `Bearer ${access_token}` } 
+        };
+
+        return _fetch({additionalPath, options});
+    }
+
+    return { userSignIn, userSignUp, sendRecord , getUserRoomsData, getRecording, getTranscribe }
 }
 
 export default useFetch;

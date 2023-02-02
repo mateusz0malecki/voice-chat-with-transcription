@@ -25,8 +25,12 @@ let audioContext,
   worklet: AudioWorkletNode,
   input: MediaStreamAudioSourceNode,
   globalStream: MediaStream;
-  
-const socket = io("https://digimonkeys-speech2txt.com/" , {
+
+// const socket = io("https://digimonkeys-speech2txt.com/" , {
+//   path: '/sockets/',
+// });
+
+const socket = io("http://localhost/" , {
   path: '/sockets/',
 });
 

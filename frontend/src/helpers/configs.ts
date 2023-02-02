@@ -1,9 +1,10 @@
 export const serverEndpoints = {
-    mainPath: 'https://digimonkeys-speech2txt.com/api/v1/',
+    mainPath: 'http://localhost/api/v1/',
     login: 'login',
     register: 'register',
     recording: 'recordings',
     transcriptions: 'transcriptions?page=1&page_size=10',
+    rooms: 'rooms?page=1&page_size=10'
 };
 
 export const path = {
@@ -12,5 +13,6 @@ export const path = {
     homeScreenPage: '/home-screen',
     callScreenPage: '/call-screan',
     audioAndTranscriptionPage: '/audio-and-transcription',
-    connectionScreen: '/call/:username/:room'
+    connectionScreen: '/call/:username/:room',
+    audioAndTranscriptionItem: '/audio-and-transcription/:name'
   };

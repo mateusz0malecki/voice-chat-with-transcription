@@ -63,6 +63,7 @@ const useMediaRecorder = (): MediaRecorderData => {
                     recordData.append('room_name' , room);
                     recordData.append('browser' , browserName);
                     recordData.append('file' , newBlob);
+                    console.log('newBLOB' , newBlob)
                     sendRecord(recordData)
 
                     setAudioBlob(newBlob);

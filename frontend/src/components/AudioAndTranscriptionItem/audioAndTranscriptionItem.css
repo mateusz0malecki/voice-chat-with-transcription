@@ -1,0 +1,11 @@
+.text__holder {
+
+    display: flex;
+    flex-wrap: wrap;
+
+    padding: 50px;
+}
+
+.text__holder * {
+    padding-right: 10px;
+}

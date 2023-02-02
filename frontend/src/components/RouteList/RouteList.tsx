@@ -4,13 +4,14 @@ import SignIn from "@/components/SignIn/SignIn";
 import SignUp from "@/components/SignUp/SignUp"
 import CallScreen from '@/components/Screens/CallScreen/CallScreen';
 import HomeScreen from "@/components/Screens/HomeScreen/HomeScreen";
-import ConnectionScreen from '@/components/Screens/ConnectionScreen/ConnectionScreen'
-import AudioAndTranscription from '@/components/AudioAndTranscription/AudioAndTranscription'
+import ConnectionScreen from '@/components/Screens/ConnectionScreen/ConnectionScreen';
+import AudioAndTranscription from '@/components/AudioAndTranscriptionWrapper/AudioAndTranscriptionWrapper';
+import AudioAndTranscriptionItem from '@/components/AudioAndTranscriptionItem/AudioAndTranscriptionItem';
 
 import { path } from '../../helpers/configs'
 
 const Router = (): JSX.Element => {
-  const { signInPage, signUpPage, homeScreenPage, callScreenPage, connectionScreen, audioAndTranscriptionPage } = path;
+  const { signInPage, signUpPage, homeScreenPage, callScreenPage, connectionScreen, audioAndTranscriptionPage, audioAndTranscriptionItem } = path;
 
   return (
     <Routes>
@@ -20,6 +21,7 @@ const Router = (): JSX.Element => {
       <Route path={callScreenPage} element={<CallScreen />} />
       <Route path={connectionScreen} element={<ConnectionScreen />} />
       <Route path={audioAndTranscriptionPage} element={<AudioAndTranscription />} />
+      <Route path={audioAndTranscriptionItem} element={<AudioAndTranscriptionItem />} />
     </Routes>
   );
 }
