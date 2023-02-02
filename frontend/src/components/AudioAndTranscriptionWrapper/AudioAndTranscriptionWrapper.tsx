@@ -6,6 +6,29 @@ import useFetch from "@/hooks/useFetch";
 
 import "./AudioAndTranscriptionWrapper.css";
 
+interface RoomItemData {
+  createdAt: string;
+  name: string;
+  recording: {
+    createdAt: string;
+    duration: number;
+    filename: string;
+    id: number;
+    url: string;
+  }
+  transcription: {
+    createdAt: string;
+    filename: string;
+    id: number;
+    url: string;
+  }
+  users: {
+    email: string;
+    name: string;
+    id: number;
+    }[];
+}
+
 const AudioAndTranscriptionWrapper = () => {
   const { getUserRoomsData } = useFetch();
   const [roomsData, setRoomsData] = React.useState(null);
@@ -26,7 +49,8 @@ const AudioAndTranscriptionWrapper = () => {
   const renderRoomsData = () => {
     if (!roomsData) return;
 
-    return roomsData.map((item) => {
+    return roomsData.map((item: RoomItemData) => {
+      console.log('item' , item)
       const { createdAt, name, recording, transcription, users } = item;
       const formatedDate = new Date(createdAt).toLocaleString();
 
