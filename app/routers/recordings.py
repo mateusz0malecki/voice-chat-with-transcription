@@ -34,7 +34,7 @@ async def upload_recorded_audio_bytes(
         current_user: user_schemas.User = Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
-    room = Room.get_room_by_name(db, room_name, current_user)
+    room = Room.get_room_by_name_for_user(db, room_name, current_user)
     if not room:
         raise RoomNotFound(room_name)
 
@@ -66,7 +66,7 @@ async def upload_new_recording_file(
         db: Session = Depends(get_db),
         current_user: user_schemas.User = Depends(get_current_user),
 ):
-    room = Room.get_room_by_name(db, room_name, current_user)
+    room = Room.get_room_by_name_for_user(db, room_name, current_user)
     if not room:
         raise RoomNotFound(room_name)
 
@@ -116,7 +116,7 @@ async def get_recording_file(
 ):
     dir_ = app_settings.recordings_path
     file_path = os.path.join(dir_, filename)
-    recording = Recording.get_recording_by_filename(db, filename, current_user)
+    recording = Recording.get_recording_by_filename_for_user(db, filename, current_user)
     if recording and os.path.exists(file_path):
         if not st or not et:
             return FileResponse(file_path, media_type="audio/wav")
@@ -147,7 +147,7 @@ async def get_recording_info(
         db: Session = Depends(get_db),
         current_user: user_schemas.User = Depends(get_current_user),
 ):
-    recording = Recording.get_recording_by_id(db, recording_id, current_user)
+    recording = Recording.get_recording_by_id_for_user(db, recording_id, current_user)
     if not recording:
         raise RecordingNotFound(recording_id)
     return recording
@@ -163,7 +163,7 @@ async def get_all_recordings(
         page: int = 1,
         page_size: int = 10
 ):
-    recordings = Recording.get_all_recordings(db, current_user)
+    recordings = Recording.get_all_recordings_for_user(db, current_user)
     first = (page - 1) * page_size
     last = first + page_size
     recordings_model = parse_obj_as(list[recording_schemas.Recording], recordings)
@@ -186,7 +186,7 @@ async def delete_recording(
         current_user: user_schemas.User = Depends(get_current_user),
         db: Session = Depends(get_db),
 ):
-    recording_to_delete = Recording.get_recording_by_id(db, recording_id, current_user)
+    recording_to_delete = Recording.get_recording_by_id_for_user(db, recording_id, current_user)
     if not recording_to_delete:
         raise RecordingNotFound(recording_id)
 

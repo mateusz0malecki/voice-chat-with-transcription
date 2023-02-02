@@ -70,6 +70,10 @@ const useTranscribe = () => {
         };
 
         worklet.port.onmessage = (e) => {
+        };
+
+        worklet.port.onmessage = (e) => {
+          console.log(e.data)
           socket.emit("binaryAudioData", e.data);
         };
         
