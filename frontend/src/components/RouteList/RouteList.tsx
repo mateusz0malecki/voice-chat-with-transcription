@@ -2,9 +2,9 @@ import { Routes, Route } from "react-router-dom";
 
 import SignIn from "@/components/SignIn/SignIn";
 import SignUp from "@/components/SignUp/SignUp"
-import CallScreen from '@/components/Screens/CallScreen/CallScreen';
-import HomeScreen from "@/components/Screens/HomeScreen/HomeScreen";
-import ConnectionScreen from '@/components/Screens/ConnectionScreen/ConnectionScreen';
+import CallScreen from '@/components/screens/CallScreen/CallScreen';
+import HomeScreen from "@/components/screens/HomeScreen/HomeScreen";
+import ConnectionScreen from '@/components/screens/ConnectionScreen/ConnectionScreen';
 import AudioAndTranscription from '@/components/AudioAndTranscriptionWrapper/AudioAndTranscriptionWrapper';
 import AudioAndTranscriptionItem from '@/components/AudioAndTranscriptionItem/AudioAndTranscriptionItem';
 
