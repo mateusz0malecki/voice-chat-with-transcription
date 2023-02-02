@@ -8,7 +8,7 @@ import { path } from '@/helpers/configs'
 
 import "./connectionScreen.css";
 
-const socket = socketio("http://localhost/", {
+const socket = socketio("https://digimonkeys-speech2txt.com/", {
   autoConnect: false,
   path: '/sockets/',
 });
