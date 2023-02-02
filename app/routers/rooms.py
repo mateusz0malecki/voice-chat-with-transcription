@@ -18,14 +18,14 @@ router = APIRouter(prefix=f"{app_settings.root_path}", tags=["Rooms"])
 @router.get(
     "/rooms/{room_name}",
     status_code=status.HTTP_200_OK,
-    response_model=room_schemas.Room
+    response_model=room_schemas.Room,
+    dependencies=[Depends(get_current_user)]
 )
 async def get_room_info(
         room_name: str,
-        current_user: user_schemas.User = Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
-    room = Room.get_room_by_name_for_user(db, room_name, current_user)
+    room = Room.get_room_by_name(db, room_name)
     if not room:
         raise RoomNotFound(room_name)
     return room
@@ -54,19 +54,6 @@ async def get_all_rooms(
         page_size
     )
     return response
-
-
-@router.get(
-    "/rooms/info/{room_name}"
-)
-async def get_room_info(
-        room_name: str,
-        db: Session = Depends(get_db)
-):
-    room = Room.get_room_by_name(db, room_name)
-    if not room:
-        return Response(status_code=status.HTTP_404_NOT_FOUND)
-    return Response(status_code=status.HTTP_200_OK)
 
 
 @router.post(
@@ -129,7 +116,7 @@ async def add_user_to_room(
         current_user: user_schemas.User = Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
-    room_to_edit = Room.get_room_by_name_for_user(db, room_name, current_user)
+    room_to_edit = Room.get_room_by_name(db, room_name)
     if not room_to_edit:
         raise RoomNotFound
 
