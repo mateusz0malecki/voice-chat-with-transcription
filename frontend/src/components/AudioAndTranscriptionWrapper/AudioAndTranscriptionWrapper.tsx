@@ -37,7 +37,7 @@ const AudioAndTranscriptionWrapper = () => {
           <span className="item__date">Created At: {formatedDate}</span>
 
           <Link to={`/audio-and-transcription/${name}`} state={{ formatedDate, name, recording, transcription, users }}>
-            <button>View</button>
+            <button className="item__button">View</button>
           </Link>
 
         </div>

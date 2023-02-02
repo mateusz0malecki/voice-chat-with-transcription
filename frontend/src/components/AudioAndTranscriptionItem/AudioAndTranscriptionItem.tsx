@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 
 import useFetch from "@/hooks/useFetch";
+import Nav from '@/components/Nav/Nav'
 import "./audioAndTranscriptionItem.css";
 
 const AudioAndTranscriptionItem = () => {
@@ -113,7 +114,7 @@ const AudioAndTranscriptionItem = () => {
         const nextTime = i + 1 < transcriptionElements.length ? transcriptionElements[i + 1].timing : Infinity;
         
         if (audioElement.currentTime > timing && audioElement.currentTime <= nextTime) {
-          element.style.backgroundColor = "yellow";
+          element.style.backgroundColor = "rgb(225, 234, 129)";
         } else {
           element.style.backgroundColor = "";
         }
@@ -124,14 +125,19 @@ const AudioAndTranscriptionItem = () => {
   if (!blob) return;
 
   return (
-    <div className="wrap">
-      <h3>Recording of the conversation of: {formatedDate}</h3>
-      <span>Name: {name}</span>
-      <span>
+    <div className="wrap wrap__preview">
+      <Nav />
+      <h3 className="preview__title">
+        Recording of the conversation of: {formatedDate}
+      </h3>
+      <span className="preview__name">
+        Name: {name}
+      </span>
+      <span className="preview__participants">
         Participants in this conversation were: {renderParticipants()}
       </span>
 
-      <audio controls>
+      <audio controls className="preview__audio">
         <source src={blob} />
       </audio>
 

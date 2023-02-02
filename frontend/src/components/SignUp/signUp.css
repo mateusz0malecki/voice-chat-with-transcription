@@ -3,7 +3,7 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 30%;
+    width: 100%;
     height: 50%;
     border-radius: 0.6rem;
 }
@@ -157,7 +157,23 @@
     transition: all 200ms linear;
 }
 
+@media(min-width: 500px) {
+    .signUp__wrap {
+        width: 70%;
+    }
+}
+
+@media(min-width: 700px) {
+    .signUp__wrap {
+        width: 50%;
+    }
+}
+
 @media(min-width: 1200px){
+    .signUn__wrap {
+        width: 30%;
+    }
+
     .signUp__button:hover {  
       background: #3fa28e;
       color: #000000;

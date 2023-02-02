@@ -34,9 +34,7 @@ const useMediaRecorder = (): MediaRecorderData => {
         navigator.mediaDevices.getUserMedia(constraints)
             .then((stream) => {
                 let newChunks: BlobPart[] = []
-                console.log('newChunks' , newChunks)
                 let newMediaRecorder: MediaRecorder;
-                console.log('newMediaRec', newMediaRecorder)
 
                 if (browserName === 'firefox') {
                     newMediaRecorder = new MediaRecorder(stream, {mimeType:'audio/ogg;codecs=opus'})
@@ -47,25 +45,20 @@ const useMediaRecorder = (): MediaRecorderData => {
                 }
 
                 newMediaRecorder.addEventListener('dataavailable', event => {
-                    console.log('dataavailable' , event.data)
                     const data = event.data;
 
                     if (data && data.size > 0) newChunks.push(data);
                 });
 
                 newMediaRecorder.addEventListener('stop', () => {
-                    console.log('stop')
                     const newBlob = new Blob(newChunks, { type: newMediaRecorder.mimeType });
                     const newAudioUrl = URL.createObjectURL(newBlob);
-                    
-                    console.log('newBlob' , newBlob)
                     const recordData = new FormData();
                     recordData.append('room_name' , room);
                     recordData.append('browser' , browserName);
                     recordData.append('file' , newBlob);
-                    console.log('newBLOB' , newBlob)
-                    sendRecord(recordData)
 
+                    sendRecord(recordData)
                     setAudioBlob(newBlob);
                     setAudioUrl(newAudioUrl);
                     newChunks = []
