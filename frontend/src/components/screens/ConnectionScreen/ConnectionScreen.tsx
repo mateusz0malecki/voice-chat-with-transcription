@@ -50,11 +50,11 @@ const CallScreen = (): JSX.Element => {
   socket.on("ready", () => {
     createPeerConnection(socket.id);
     sendOffer(socket.id);
+    setIsTranscript(true);
   });
 
   socket.on("data", (data) => {
     signalingDataHandler(data, socket.id);
-    setIsTranscript(true);
   });
 
   socket.on("leave", (data) => {
