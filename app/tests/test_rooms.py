@@ -48,8 +48,8 @@ def test_get_room(client):
     response = client.get(f'{app_settings.root_path}/rooms/test')
     assert response.status_code == 200
     assert response.json()["name"] == "test"
-    assert response.json()["recording"]["duration"] == 1.542108843537415
-    assert response.json()["transcription"] is not None
+    assert response.json()["recordings"][0]["duration"] == 1.542108843537415
+    assert response.json()["transcriptions"] is not None
     assert len(response.json()["users"]) == 1
 
 

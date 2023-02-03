@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 
 
-def convert_and_save_file(browser: str, file: bytes, room_name: str):
+def convert_and_save_file(browser: str, file: bytes, room_name: str, number: int):
     """
     Converts and saves given audio file in bytes to WAV audio extension.
     """
@@ -16,7 +16,7 @@ def convert_and_save_file(browser: str, file: bytes, room_name: str):
     if not os.path.exists(dir_):
         os.mkdir(dir_)
 
-    filename = f"{datetime.now().strftime('%d-%m-%Y')}-{room_name}.wav"
+    filename = f"{datetime.now().strftime('%d-%m-%Y')}-{room_name}-{str(number+1)}.wav"
     final_file_location = f"{dir_}/{filename}"
 
     if browser == "chrome":

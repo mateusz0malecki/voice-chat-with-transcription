@@ -14,7 +14,7 @@ class Recording(Base):
     url = Column(String(256), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     room_name = Column(String, ForeignKey("room.name", ondelete='CASCADE'))
-    room = relationship("Room", back_populates="recording")
+    room = relationship("Room", back_populates="recordings")
 
     def __repr__(self):
         return f"<id: {self.id}, length: {self.length}>"

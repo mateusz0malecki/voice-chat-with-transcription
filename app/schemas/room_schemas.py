@@ -9,8 +9,8 @@ from .user_schemas import User
 class Room(BaseConfig):
     name: str
     created_at: Optional[datetime]
-    recording: Optional[Recording]
-    transcription: Optional[Transcription]
+    recordings: Optional[list[Recording]] = []
+    transcriptions: Optional[list[Transcription]] = []
     users: Optional[list[User]] = []
 
 

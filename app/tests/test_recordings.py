@@ -31,7 +31,7 @@ def test_upload_recording_file(client):
             data={"room_name": "test"}
         )
     assert response.status_code == 201
-    assert len(response.json()["info"]) == 35
+    assert len(response.json()["info"]) == 37
 
 
 def test_get_recording(client):

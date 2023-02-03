@@ -7,6 +7,7 @@ class Transcription(BaseConfig):
     id: int
     filename: str
     url: str
+    room_name: str
     created_at: Optional[datetime]
 
 

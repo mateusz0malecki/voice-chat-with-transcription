@@ -8,6 +8,7 @@ class Recording(BaseConfig):
     filename: str
     duration: float
     url: str
+    room_name: str
     created_at: Optional[datetime]
 
 

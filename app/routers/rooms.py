@@ -18,14 +18,14 @@ router = APIRouter(prefix=f"{app_settings.root_path}", tags=["Rooms"])
 @router.get(
     "/rooms/{room_name}",
     status_code=status.HTTP_200_OK,
-    response_model=room_schemas.Room,
-    dependencies=[Depends(get_current_user)]
+    response_model=room_schemas.Room
 )
 async def get_room_info(
         room_name: str,
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
+        current_user: user_schemas.User = Depends(get_current_user),
 ):
-    room = Room.get_room_by_name(db, room_name)
+    room = Room.get_room_by_name_for_user(db, room_name, current_user)
     if not room:
         raise RoomNotFound(room_name)
     return room
@@ -88,15 +88,15 @@ async def delete_room(
     if not room_to_delete:
         raise RoomNotFound
 
-    if room_to_delete.transcription:
-        file_path = app_settings.transcriptions_path + room_to_delete.transcription.filename
+    for transcription in room_to_delete.transcriptions:
+        file_path = app_settings.transcriptions_path + transcription.filename
         try:
             os.remove(file_path)
         except Exception as e:
             print({"Error": e})
 
-    if room_to_delete.recording:
-        file_path = app_settings.recordings_path + room_to_delete.recording.filename
+    for recording in room_to_delete.recordings:
+        file_path = app_settings.recordings_path + recording.filename
         try:
             os.remove(file_path)
         except Exception as e:

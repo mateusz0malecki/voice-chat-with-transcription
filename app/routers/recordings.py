@@ -38,12 +38,13 @@ async def upload_recorded_audio_bytes(
     room = Room.get_room_by_name_for_user(db, room_name, current_user)
     if not room:
         raise RoomNotFound(room_name)
+    number = len(room.recordings)
 
     temp_dir = "data/temp/"
     if not os.path.exists(temp_dir):
         os.mkdir(temp_dir)
 
-    new_filename, location, duration = convert_and_save_file(browser, file, room_name)
+    new_filename, location, duration = convert_and_save_file(browser, file, room_name, number)
 
     new_recording = Recording(
         filename=new_filename,
@@ -72,11 +73,12 @@ async def upload_new_recording_file(
     room = Room.get_room_by_name_for_user(db, room_name, current_user)
     if not room:
         raise RoomNotFound(room_name)
+    number = len(room.recordings)
 
     temp_dir = "data/temp/"
     if not os.path.exists(temp_dir):
         os.makedirs(temp_dir)
-    filename = f"{datetime.now().strftime('%d-%m-%Y')}-{room_name}" + file.filename[-4:]
+    filename = f"{datetime.now().strftime('%d-%m-%Y')}-{room_name}-{str(number+1)}" + file.filename[-4:]
 
     with open(temp_dir + filename, "wb") as my_file:
         content = await file.read()

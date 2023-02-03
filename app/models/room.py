@@ -18,16 +18,14 @@ class Room(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, unique=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    recording = relationship(
+    recordings = relationship(
         "Recording",
         back_populates="room",
-        uselist=False,
         cascade="all, delete-orphan"
     )
-    transcription = relationship(
+    transcriptions = relationship(
         "Transcription",
         back_populates="room",
-        uselist=False,
         cascade="all, delete-orphan"
     )
     users = relationship(

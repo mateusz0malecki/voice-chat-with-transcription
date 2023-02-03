@@ -97,12 +97,13 @@ async def save_stream_transcription(
     room = Room.get_room_by_name_for_user(db, request.room_name, current_user)
     if not room:
         raise RoomNotFound(request.room_name)
+    number = len(room.transcriptions)
 
     data_dir = "data/"
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
 
-    transcription_filename = f"{datetime.now().strftime('%d-%m-%Y')}-{request.room_name}.txt"
+    transcription_filename = f"{datetime.now().strftime('%d-%m-%Y')}-{request.room_name}-{str(number+1)}.txt"
     transcription = Transcription(
         filename=transcription_filename,
         room_name=request.room_name,
