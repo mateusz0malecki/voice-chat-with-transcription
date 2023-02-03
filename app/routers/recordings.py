@@ -18,6 +18,7 @@ from schemas import recording_schemas, user_schemas
 from auth.jwt_helper import get_current_user
 from settings import get_settings
 from exceptions.exceptions import RecordingNotFound, RoomNotFound
+from celery_worker.tasks import transcript
 
 app_settings = get_settings()
 router = APIRouter(prefix=f"{app_settings.root_path}", tags=["Recordings"])
@@ -53,6 +54,8 @@ async def upload_recorded_audio_bytes(
     db.add(new_recording)
     db.commit()
     db.refresh(new_recording)
+
+    transcript.delay(recording_name=new_filename, user_email=current_user.email)
     return {"info": f"file saved at '{location}'"}
 
 
@@ -99,6 +102,8 @@ async def upload_new_recording_file(
     db.add(new_recording)
     db.commit()
     db.refresh(new_recording)
+
+    transcript.delay(recording_name=filename, user_email=current_user.email)
     return {"info": f"File saved as '{filename}'"}
 
 

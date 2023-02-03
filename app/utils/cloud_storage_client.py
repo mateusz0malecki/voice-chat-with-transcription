@@ -30,6 +30,10 @@ class StorageClient:
         gs_link = "gs://" + link
         return gs_link
 
+    def delete_blob(self, blob_name):
+        blob = self._bucket.blob(blob_name)
+        blob.delete()
+
 
 @lru_cache
 def get_client():

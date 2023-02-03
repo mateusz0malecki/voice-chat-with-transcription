@@ -47,3 +47,7 @@ deepmultilingualpunctuation==1.0.1
 
 # tests
 pytest==7.2.0
+
+# asynchronous jobs
+celery==5.2.7
+flower==1.2.0

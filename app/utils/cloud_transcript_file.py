@@ -22,11 +22,12 @@ def transcript_small_local_file_gcp(media_file_name):
         sample_rate_hertz=16000,
         language_code="pl-PL",
         enable_automatic_punctuation=True,
-        model='default'
+        model='default',
+        enable_word_time_offsets=True,
     )
     config = speech.RecognitionConfig(details_config)
     response = speech_client.recognize(config=config, audio=audio)
-    return response.results
+    return response
 
 
 def transcript_big_bucket_file_gcp(media_uri):
@@ -39,14 +40,15 @@ def transcript_big_bucket_file_gcp(media_uri):
     audio = speech.RecognitionAudio(uri=media_uri)
     detail_config = dict(
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=16000,
+        sample_rate_hertz=48000,
         language_code="pl-PL",
         enable_automatic_punctuation=True,
         use_enhanced=True,
         model='latest_long',
-        audio_channel_count=2
+        audio_channel_count=1,
+        enable_word_time_offsets=True,
     )
     config = speech.RecognitionConfig(detail_config)
     operation = speech_client.long_running_recognize(config=config, audio=audio)
     response = operation.result()
-    return response.results
+    return response

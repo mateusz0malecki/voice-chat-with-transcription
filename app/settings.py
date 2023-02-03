@@ -9,6 +9,11 @@ class Settings(BaseSettings):
     postgres_host: str
     postgres_port: str
 
+    celery_broker_url: str
+    celery_result_backend: str
+    amqp_host: str
+    amqp_uri: str
+
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
