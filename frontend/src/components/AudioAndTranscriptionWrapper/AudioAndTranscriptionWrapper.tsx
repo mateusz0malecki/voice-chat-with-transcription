@@ -33,8 +33,6 @@ const AudioAndTranscriptionWrapper = () => {
   const { getUserRoomsData } = useFetch();
   const [roomsData, setRoomsData] = React.useState(null);
 
-  console.log("rooms", roomsData);
-
   React.useEffect(() => {
     getAllRoomsData();
   }, []);
@@ -50,7 +48,6 @@ const AudioAndTranscriptionWrapper = () => {
     if (!roomsData) return;
 
     return roomsData.map((item: RoomItemData) => {
-      console.log('item' , item)
       const { createdAt, name, recording, transcription, users } = item;
       const formatedDate = new Date(createdAt).toLocaleString();
 

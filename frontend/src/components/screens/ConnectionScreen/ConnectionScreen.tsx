@@ -51,7 +51,7 @@ const CallScreen = (): JSX.Element => {
     createPeerConnection(socket.id);
     sendOffer(socket.id);
   });
-
+  
   socket.on("data", (data) => {
     signalingDataHandler(data, socket.id);
     setIsTranscript(true);

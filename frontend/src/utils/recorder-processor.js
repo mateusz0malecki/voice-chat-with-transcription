@@ -30,10 +30,19 @@ let recorderProcessor = URL.createObjectURL( new Blob([ '(', function(){
      * @param {Float32Array[][]} inputs
      * @returns {boolean}
      */
-    process(inputs) {
+    process(inputs, outputs) {
       // Grabbing the 1st channel similar to ScriptProcessorNode
-      this.append(inputs[0][0])
-  
+      const inputData = inputs[0][0];
+      // const outputData = outputs[0][0]; 
+
+      // * @param {Float32Array[][]} outputs
+      // for (let i = 0; i < inputData?.length; i++) {
+      //   outputData[i] = inputData[i];
+      // }
+
+      this.append(inputData)
+      // this.append(outputData)
+
       return true
     }
   
@@ -75,7 +84,9 @@ let recorderProcessor = URL.createObjectURL( new Blob([ '(', function(){
       var result = new Int16Array(newLength);
       var offsetResult = 0;
       var offsetBuffer = 0;
+
       while (offsetResult < result.length) {
+
         var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
         var accum = 0,
           count = 0;
